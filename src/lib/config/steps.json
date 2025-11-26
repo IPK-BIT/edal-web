@@ -1,0 +1,70 @@
+[
+    {
+        "title": "Data Deposition and License Agreement"
+    },
+    {
+        "hooks": [
+            {
+                "type": "metadata",
+                "state": {
+                    "mapping": "metadata",
+                    "count": 1
+                }
+            }
+        ],
+        "title": "Please provide basic information on the dataset",
+        "text": [
+            "Fill in the title and description of your dataset. Make sure to provide a clear and concise description to help others understand the content and purpose of your dataset.",
+            "Select an appropriate license for your dataset to specify how others can use it."
+        ],
+        "fields": [
+            {
+                "type": "string",
+                "label": "Dataset Title",
+                "mapping": {
+                    "jsonPath": "metadata.title"
+                }
+            },
+            {
+                "type": "textarea",
+                "label": "Description",
+                "mapping": {
+                    "jsonPath": "metadata.description"
+                }
+            },
+            {
+                "type": "license",
+                "label": "License",
+                "mapping": {
+                    "jsonPath": "metadata.license"
+                }
+            }
+        ]
+    },
+    {
+        "title": "Please provide information on the authors of the dataset",
+        "text": [
+            "Add the names and affiliations of the authors who contributed to the dataset.",
+            "You need to specify at least one author with the creator role."
+        ],
+        "component": "people",
+        "componentConfig": {
+            "allowedRoles": [
+                { "label": "Creator", "value": "Creator" },
+                { "label": "Contributor", "value": "Contributor" }
+            ]
+        },
+        "jsonPath": "metadata.authors"
+    },
+    {
+        "title": "Please upload the files of the dataset",
+        "text": [
+            "Upload the files that make up your dataset. You can add multiple files as needed."
+        ],
+        "component": "files",
+        "componentConfig": {
+            "multiple": true
+        },
+        "jsonPath": "files"
+    }
+]

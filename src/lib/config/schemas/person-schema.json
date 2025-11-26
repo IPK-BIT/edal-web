@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "role": {
+      "description": "Role of the person.",
+      "type": "string"
+    },
+    "orcid": {
+      "description": "ORCID identifier of the person.",
+      "type": "string",
+      "format": "uri"
+    },
+    "firstName": {
+      "description": "Given name of the person.",
+      "type": "string"
+    },
+    "lastName": {
+      "description": "Surname of the person.",
+      "type": "string"
+    },
+    "address": {
+      "description": "Address of the person.",
+      "type": "string"
+    },
+    "zipCode": {
+      "description": "ZIP code of the person's address.",
+      "type": "string"
+    },
+    "country": {
+      "description": "Country of the person.",
+      "type": "string"
+    }
+  }
+}
