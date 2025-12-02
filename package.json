@@ -37,6 +37,9 @@
 		"vite": "^7.1.7"
 	},
 	"dependencies": {
-		"@humanspeak/svelte-keyed": "^5.0.1"
+		"@humanspeak/svelte-keyed": "^5.0.1",
+		"@tus/file-store": "^2.0.0",
+		"@tus/server": "^2.3.0",
+		"tus-js-client": "^4.3.1"
 	}
 }
