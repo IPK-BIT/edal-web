@@ -24,7 +24,30 @@
         onremovePerson = () => {}
     } = $props();
 
-    let editMode = $state(false);
+    let orcid = $state({});
+
+    $effect(() => {
+        if (
+            orcid &&
+            typeof orcid === 'object' &&
+            'obj' in orcid &&
+            orcid.obj &&
+            typeof orcid.obj === 'object' &&
+            'orcid-id' in (orcid.obj as Record<string, any>)
+        ) {
+            const newOrcid = (orcid.obj as Record<string, any>)['orcid-id'];
+            if (person.orcid !== newOrcid) {
+                person.orcid = newOrcid;
+                person.firstName = (orcid.obj as Record<string, any>)['given-names'];
+                person.lastName = (orcid.obj as Record<string, any>)['family-names'];
+            }
+        } else if (orcid === '' && person.orcid) {
+            // clear person.orcid when selection is cleared
+            person.orcid = '';
+        }
+    });
+
+    let editMode = $state(true);
 </script>
 
 <div class="border rounded-md p-4 overflow-x-auto text-sm bg-base-100" style="border-color: color-mix(in oklab, var(--color-base-content) 20%, #0000);">
@@ -43,16 +66,16 @@
         </fieldset>
         <fieldset class="fieldset">
             <legend class="fieldset-legend">ORCID</legend>
-            {#if person.orcid}
+            {#if Object.keys(orcid).length > 0}
                 <div class="p-2 border rounded-md flex justify-between items-center" style="border-color: color-mix(in oklab, var(--color-base-content) 20%, #0000);">
                     <span>{person.orcid}</span>
-                    <button class="btn btn-xs btn-warning" onclick={() => { person.orcid = ''; }}>Remove</button>
+                    <button class="btn btn-xs btn-warning" onclick={() => { orcid = {}; person.orcid=''; person.firstName = ''; person.lastName = ''; }}>Remove</button>
                 </div>
             {:else}
              <Svelecte
-                bind:value={person.orcid}
+                bind:value={orcid}
                 class="w-full"
-                valueAsObject={false}
+                valueAsObject={true}
                 placeholder="Search for ORCID of author"
                 fetch="https://pub.orcid.org/v3.0/expanded-search/?q=[query]"
                 fetchProps={{ headers: { 'Content-Type': 'application/json' } }}
