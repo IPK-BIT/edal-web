@@ -37,6 +37,7 @@
 		"vite": "^7.1.7"
 	},
 	"dependencies": {
-		"@humanspeak/svelte-keyed": "^5.0.1"
+		"@humanspeak/svelte-keyed": "^5.0.1",
+		"svelecte": "^5.3.0"
 	}
 }

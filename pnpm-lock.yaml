@@ -11,6 +11,9 @@ importers:
       '@humanspeak/svelte-keyed':
         specifier: ^5.0.1
         version: 5.0.1
+      svelecte:
+        specifier: ^5.3.0
+        version: 5.3.0(svelte@5.41.1)
     devDependencies:
       '@eslint/compat':
         specifier: ^1.4.0
@@ -1293,6 +1296,11 @@ packages:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
     engines: {node: '>=8'}
 
+  svelecte@5.3.0:
+    resolution: {integrity: sha512-9WKD6KxPf31CweyZtObTetGtkq1TncBA2E+aSHcT+bfjALgP+LUGMMQUU+2qhlfSoGpw9JYmLfxphGjb0q350g==}
+    peerDependencies:
+      svelte: ^5.2.7
+
   svelte-check@4.3.3:
     resolution: {integrity: sha512-RYP0bEwenDXzfv0P1sKAwjZSlaRyqBn0Fz1TVni58lqyEiqgwztTpmodJrGzP6ZT2aHl4MbTvWP6gbmQ3FOnBg==}
     engines: {node: '>= 18.0.0'}
@@ -2454,6 +2462,10 @@ snapshots:
   supports-color@7.2.0:
     dependencies:
       has-flag: 4.0.0
+
+  svelecte@5.3.0(svelte@5.41.1):
+    dependencies:
+      svelte: 5.41.1
 
   svelte-check@4.3.3(picomatch@4.0.3)(svelte@5.41.1)(typescript@5.9.3):
     dependencies:

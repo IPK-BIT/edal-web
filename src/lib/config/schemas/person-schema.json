@@ -19,6 +19,10 @@
       "description": "Surname of the person.",
       "type": "string"
     },
+    "affiliation": {
+      "description": "Affiliation of the person.",
+      "type": "string"
+    },
     "address": {
       "description": "Address of the person.",
       "type": "string"

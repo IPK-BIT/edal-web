@@ -1,4 +1,23 @@
 <script lang="ts">
+	import Svelecte from "svelecte";
+
+    function handleOrcidFetch(data: {'expanded-result': Array<{'orcid-id': string, 'given-names': string, 'family-names': string, 'institution-name': Array<string>}>}) {
+        if (data && data['expanded-result'] && data['expanded-result'].length > 0) {
+            let results = data['expanded-result'].map((item) => {
+                return {
+                    obj: item,
+                    text: `${item['given-names']} ${item['family-names']} (${item['institution-name'][0]})`,
+                    value: item['orcid-id']
+                };
+            });
+            console.log('ORCID results:', results);
+            return results;
+        } else {
+            console.log('No ORCID results found');
+            return [];
+        }
+    }
+
     let {
         value: person = $bindable(),
         allowedRoles = [],
@@ -24,7 +43,22 @@
         </fieldset>
         <fieldset class="fieldset">
             <legend class="fieldset-legend">ORCID</legend>
-            <input type="text" class="input w-full" bind:value={person.orcid} />
+            {#if person.orcid}
+                <div class="p-2 border rounded-md flex justify-between items-center" style="border-color: color-mix(in oklab, var(--color-base-content) 20%, #0000);">
+                    <span>{person.orcid}</span>
+                    <button class="btn btn-xs btn-warning" onclick={() => { person.orcid = ''; }}>Remove</button>
+                </div>
+            {:else}
+             <Svelecte
+                bind:value={person.orcid}
+                class="w-full"
+                valueAsObject={false}
+                placeholder="Search for ORCID of author"
+                fetch="https://pub.orcid.org/v3.0/expanded-search/?q=[query]"
+                fetchProps={{ headers: { 'Content-Type': 'application/json' } }}
+                fetchCallback={handleOrcidFetch}
+            />
+            {/if}
         </fieldset>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
             <fieldset class="fieldset">
@@ -36,6 +70,10 @@
                 <input type="text" class="input w-full" bind:value={person.lastName} />
             </fieldset>
         </div>
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend">Affiliation</legend>
+            <input type="text" class="input w-full" bind:value={person.affiliation} />
+        </fieldset>
         <fieldset class="fieldset">
             <legend class="fieldset-legend">Address</legend>
             <input type="text" class="input w-full" bind:value={person.address} />

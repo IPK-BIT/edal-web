@@ -7,6 +7,7 @@
 	import License from "./fields/License.svelte";
 	import People from "./components/People.svelte";
 	import Files from "./components/Files.svelte";
+    import Ddla from "./components/Ddla.svelte";
 	import { datasetObj } from "$lib/stores/dataset";
 	import { onMount } from "svelte";
 	import Schemas from "$lib";
@@ -22,6 +23,7 @@
     const componentTypes = {
         'people': People,
         'files': Files,
+        'ddla': Ddla,
     }
 
     onMount(()=>{
@@ -61,10 +63,16 @@
         }
     }
 
+    let validated;
+
     let index = 0;
     let fileId = $state(0);
 
     function finish() {
+        if (!confirm("You are about to finish the submission. Do you want to continue?")) {
+            return;
+        }
+
         let access_token = localStorage.getItem('access_token');
 
         //@ts-ignore
@@ -107,7 +115,7 @@
             activeConnections++;
             let base_url = 'https://dmz-web-169.ipk-gatersleben.de/submission';
             // let base_url = 'http://localhost:8000';
-            const resp = fetch(`${base_url}/upload/datasets`, {
+            const resp = fetch(`${base_url}/upload/dataset`, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -153,6 +161,7 @@
                         component={componentTypes[steps[currentStep].component as keyof typeof componentTypes]} 
                         jsonPath={steps[currentStep].jsonPath} 
                         componentConfig={steps[currentStep].componentConfig} 
+                        validated={validated}
                     />
                 {/if}
             {/key}

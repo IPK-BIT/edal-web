@@ -1,6 +1,11 @@
 [
     {
-        "title": "Data Deposition and License Agreement"
+        "title": "Data Deposition and License Agreement",
+        "text": [
+            "Please read and accept the Data Deposition and License Agreement (DDLA) before proceeding with the submission of your dataset.",
+            "By accepting the DDLA, you agree to comply with the terms and conditions outlined in the agreement regarding the use, distribution, and licensing of your dataset."
+        ],
+        "component": "ddla"
     },
     {
         "hooks": [
