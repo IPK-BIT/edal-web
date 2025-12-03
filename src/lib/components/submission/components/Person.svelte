@@ -1,5 +1,12 @@
 <script lang="ts">
 	import Svelecte from "svelecte";
+	import { onMount } from "svelte";
+
+    onMount(()=>{
+        if (!person.orcid) {
+            editMode = true;
+        }
+    })
 
     function handleOrcidFetch(data: {'expanded-result': Array<{'orcid-id': string, 'given-names': string, 'family-names': string, 'institution-name': Array<string>}>}) {
         if (data && data['expanded-result'] && data['expanded-result'].length > 0) {
@@ -18,10 +25,29 @@
         }
     }
 
+    function syncSignedInUser() {
+        let access_token = localStorage.getItem('access_token') || '';
+        if (access_token) {
+            try {
+                let data = JSON.parse(atob(access_token.split('.')[1]));
+                person.firstName = data?.given_name || person.firstName;
+                person.lastName = data?.family_name || person.lastName;
+                // Note: ORCID is not typically included in JWT tokens; this is just an example.
+                if (data?.orcid) {
+                    person.orcid = data.orcid;
+                }
+            } catch {
+                console.error('Failed to parse access token');
+            }
+        } else {
+            alert('No signed-in user found to sync from.');
+        }
+    }
+
     let {
         value: person = $bindable(),
         allowedRoles = [],
-        onremovePerson = () => {}
+        onremovePerson = () => {},
     } = $props();
 
     let orcid = $state({});
@@ -47,7 +73,7 @@
         }
     });
 
-    let editMode = $state(true);
+    let editMode = $state(false);
 </script>
 
 <div class="border rounded-md p-4 overflow-x-auto text-sm bg-base-100" style="border-color: color-mix(in oklab, var(--color-base-content) 20%, #0000);">
@@ -66,7 +92,7 @@
         </fieldset>
         <fieldset class="fieldset">
             <legend class="fieldset-legend">ORCID</legend>
-            {#if Object.keys(orcid).length > 0}
+            {#if person.orcid}
                 <div class="p-2 border rounded-md flex justify-between items-center" style="border-color: color-mix(in oklab, var(--color-base-content) 20%, #0000);">
                     <span>{person.orcid}</span>
                     <button class="btn btn-xs btn-warning" onclick={() => { orcid = {}; person.orcid=''; person.firstName = ''; person.lastName = ''; }}>Remove</button>
@@ -121,6 +147,9 @@
         </button>
         <button class="btn btn-sm btn-error" onclick={() => onremovePerson()}>
             Remove {person.givenName || 'Person'}
+        </button>
+        <button class="btn btn-sm btn-ghost" onclick={syncSignedInUser}>
+            Sync signed in user info
         </button>
     </div>
     {:else}

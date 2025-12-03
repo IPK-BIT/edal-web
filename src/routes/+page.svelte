@@ -26,7 +26,6 @@
 				<h1 class="text-lg font-semibold">e!DAL — Plant Genomics & Phenomics</h1>
 				<p class="text-sm text-slate-500">
 					Research data repository for large, heterogeneous plant genomics and phenomics datasets.
-					Supports LS Login and DOI publication.
 				</p>
 			</div>
 		</div>
@@ -38,7 +37,7 @@
 				Publish large plant genomics & phenomics datasets with persistent DOIs
 			</h2>
 			<p class="text-justify text-slate-600">
-				e!DAL-PGPas infrastructure to comprehensively publish plant research data. This covers in
+				e!DAL-PGP as infrastructure to comprehensively publish plant research data. This covers in
 				particular cross-domain datasets that are not being published in central repositories
 				because of its volume or unsupported data scope, like image collections from plant
 				phenotyping and microscopy, unfinished genomes, genotyping data, visualizations of
