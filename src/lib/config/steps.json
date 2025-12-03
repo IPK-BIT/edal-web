@@ -71,7 +71,11 @@
         ],
         "component": "files",
         "componentConfig": {
-            "multiple": true
+            "multiple": true,
+            "options": [
+                { "label": "Local file upload", "value": "local" },
+                { "label": "S3 Access", "value": "s3" }
+            ]
         },
         "jsonPath": "files"
     }
