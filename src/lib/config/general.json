@@ -2,5 +2,6 @@
     "aai": {
         "client-id": "edal-web",
         "openid-configuration": "https://dev.scorpion.bi.denbi.de/realms/edal/.well-known/openid-configuration"
-    }
+    },
+    "env": "dev"
 }
