@@ -26,6 +26,7 @@
             {
                 "type": "string",
                 "label": "Dataset Title",
+                "required": true,
                 "mapping": {
                     "jsonPath": "metadata.title"
                 }
@@ -33,6 +34,7 @@
             {
                 "type": "textarea",
                 "label": "Description",
+                "required": true,
                 "mapping": {
                     "jsonPath": "metadata.description"
                 }
@@ -40,6 +42,7 @@
             {
                 "type": "license",
                 "label": "License",
+                "required": true,
                 "mapping": {
                     "jsonPath": "metadata.license"
                 }

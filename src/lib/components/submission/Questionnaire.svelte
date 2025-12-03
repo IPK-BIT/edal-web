@@ -50,7 +50,42 @@
         
     }
 
+    function getValueByPath(obj, path) {
+        // path: "metadata.title" etc
+        return path.split('.').reduce((o, k) => (o && o[k] !== undefined ? o[k] : undefined), obj);
+    }
+
     function next() {
+        // Validate required fields for the current step
+        const step = steps[currentStep];
+        if (step.fields) {
+            const missing = [];
+            for (const field of step.fields) {
+                if (field.required) {
+                    const value = getValueByPath($datasetObj, field.mapping.jsonPath);
+                    if (
+                        value === undefined ||
+                        value === null ||
+                        (typeof value === 'string' && value.trim() === '')
+                    ) {
+                        missing.push(field.label);
+                    }
+                }
+            }
+            if (missing.length > 0) {
+                alert("Please fill out the following required field(s):\n" + missing.join(", "));
+                return;
+            }
+        }
+        // Additional validation for authors step
+        if (step.jsonPath === "metadata.authors") {
+            const authors = $datasetObj.metadata?.authors || [];
+            const hasCreator = authors.some((author) => author.role === "Creator");
+            if (!hasCreator) {
+                alert("You need to specify at least one author with the Creator role.");
+                return;
+            }
+        }
         if (currentStep < steps.length - 1) {
             currentStep += 1;
             executeHook(currentStep);

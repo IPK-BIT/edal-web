@@ -94,7 +94,7 @@
             }
             editMode = false;
         }}>
-            Stop Editing
+            Save
         </button>
         <button class="btn btn-sm btn-error" onclick={() => onremovePerson()}>
             Remove {person.givenName || 'Person'}
