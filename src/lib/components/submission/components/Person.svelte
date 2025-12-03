@@ -86,11 +86,17 @@
             <legend class="fieldset-legend">Country</legend>
             <input type="text" class="input w-full" bind:value={person.country} />
         </fieldset>
-        
-        <button class="btn btn-sm btn-info" onclick={() => editMode = false}>
+
+        <button class="btn btn-sm btn-info" onclick={() => {
+            if (!person.orcid) {
+                alert('Every author needs an ORCID');
+                return;
+            }
+            editMode = false;
+        }}>
             Stop Editing
         </button>
-        <button class="btn btn-sm btn-error" onclick={() => editMode = false}>
+        <button class="btn btn-sm btn-error" onclick={() => onremovePerson()}>
             Remove {person.givenName || 'Person'}
         </button>
     </div>
@@ -110,7 +116,7 @@
             <button class="btn btn-sm btn-error mt-2" onclick={() => onremovePerson()}>
                 Remove
             </button>
-        </div>    
+        </div>
     </div>
     {/if}
 </div>
