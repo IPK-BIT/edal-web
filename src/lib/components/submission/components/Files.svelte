@@ -3,6 +3,7 @@
   import FileUploader from "./FileUploader.svelte";
   import S3Access from "./S3Access.svelte";
   import steps from "$lib/config/steps.json";
+  import { datasetObj } from "$lib/stores/dataset";
 
   export let value: File[] = [];
   export let componentConfig: any = {};
@@ -18,27 +19,21 @@
     if (componentConfig && componentConfig.options) {
       options = componentConfig.options;
     }
+    $datasetObj.file_transfer_mode = "manual_upload";
   });
 
   let selectedTab = options[0].value;
 
-  // For S3 form data
-  let s3Data = {
-    endpoint: "",
-    bucket: "",
-    accessKey: "",
-    secretKey: ""
-  };
-
-  // Expose S3 data if needed
-  export { s3Data };
 </script>
 
 <div class="tabs mb-4">
   {#each options as opt}
     <a
       class="tab tab-bordered {selectedTab === opt.value ? 'tab-active' : ''}"
-      on:click={() => (selectedTab = opt.value)}
+      on:click={() => {
+        selectedTab = opt.value;
+        $datasetObj.file_transfer_mode = selectedTab === "s3" ? "s3" : "manual_upload";
+      }}
       >{opt.label}</a
     >
   {/each}
@@ -49,5 +44,5 @@
 {/if}
 
 {#if selectedTab === "s3"}
-  <S3Access bind:s3Data />
+  <S3Access bind:value={$datasetObj.s3_access} />
 {/if}

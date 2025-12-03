@@ -21,7 +21,6 @@
       class="input input-bordered w-full"
       type="text"
       bind:value={value.endpoint}
-      placeholder="https://s3.example.com"
       on:input={(e) => handleInput(e, "endpoint")}
       autocomplete="off"
     />
@@ -34,7 +33,6 @@
       class="input input-bordered w-full"
       type="text"
       bind:value={value.bucket}
-      placeholder="my-bucket"
       on:input={(e) => handleInput(e, "bucket")}
       autocomplete="off"
     />
@@ -47,7 +45,6 @@
       class="input input-bordered w-full"
       type="text"
       bind:value={value.accessKey}
-      placeholder="AKIA..."
       on:input={(e) => handleInput(e, "accessKey")}
       autocomplete="off"
     />
@@ -60,7 +57,6 @@
       class="input input-bordered w-full"
       type="password"
       bind:value={value.secretKey}
-      placeholder="********"
       on:input={(e) => handleInput(e, "secretKey")}
       autocomplete="off"
     />
