@@ -4,8 +4,11 @@
 	import Questionnaire from "$lib/components/submission/Questionnaire.svelte";
 	import { datasetObj } from "$lib/stores/dataset";
 	import generalConfig from "$lib/config/general.json";
+	import { onMount } from "svelte";
 
-    $datasetObj = Schemas.getObjectFromSchema('dataset');
+	onMount(async () => {
+    	$datasetObj = Schemas.getObjectFromSchema('dataset');
+	});
 
 </script>
 
