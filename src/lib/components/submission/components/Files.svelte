@@ -1,49 +1,48 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import FileUploader from "./FileUploader.svelte";
+  import S3Access from "./S3Access.svelte";
+  import steps from "$lib/config/steps.json";
+  import { datasetObj } from "$lib/stores/dataset";
 
   export let value: File[] = [];
+  export let componentConfig: any = {};
 
-  function readFiles(evt: Event) {
-    //@ts-ignore
-    value = evt.target ? evt.target.files : [];
-  }
+  // Default options if not provided via componentConfig
+  let options = [
+    { label: "Local file upload", value: "local" },
+    { label: "S3 Access", value: "s3" }
+  ];
 
-  function setAttributeWebkitdirectory(node: any) {
-    node.setAttribute("webkitdirectory", "");
-  }
+  // Use options from componentConfig if available
+  onMount(() => {
+    if (componentConfig && componentConfig.options) {
+      options = componentConfig.options;
+    }
+    $datasetObj.file_transfer_mode = "manual_upload";
+  });
+
+  let selectedTab = options[0].value;
+
 </script>
 
-<form class="form-control">
-  <input
-    class="input input-bordered p-2"
-    type="file"
-    name="fileList"
-    use:setAttributeWebkitdirectory
-    multiple
-    on:change={(evt) => {
-      readFiles(evt);
-    }}
-  />
-</form>
-<div class="bg-white p-2 rounded-lg">
-  <table class="table w-full">
-    <!-- head -->
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Relative Path</th>
-        <th>File Type</th>
-        <th>Size</th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each value as file, i}
-        <tr>
-          <td>{file.name}</td>
-          <td>{file.webkitRelativePath}</td>
-          <td>{file.type}</td>
-          <td>{file.size}</td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
+<div class="tabs mb-4">
+  {#each options as opt}
+    <a
+      class="tab tab-bordered {selectedTab === opt.value ? 'tab-active' : ''}"
+      on:click={() => {
+        selectedTab = opt.value;
+        $datasetObj.file_transfer_mode = selectedTab === "s3" ? "s3" : "manual_upload";
+      }}
+      >{opt.label}</a
+    >
+  {/each}
 </div>
+
+{#if selectedTab === "local"}
+  <FileUploader bind:value />
+{/if}
+
+{#if selectedTab === "s3"}
+  <S3Access bind:value={$datasetObj.s3_access} />
+{/if}

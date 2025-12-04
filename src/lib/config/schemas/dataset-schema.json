@@ -13,6 +13,15 @@
     "files": {
       "description": "Files",
       "type": "object"
+    },
+    "s3_access": {
+      "description": "S3 access info",
+      "type": "object"
+    },
+    "file_transfer_mode": {
+      "description": "File transfer mode",
+      "type": "string",
+      "enum": ["s3", "manual_upload"]
     }
   }
 }

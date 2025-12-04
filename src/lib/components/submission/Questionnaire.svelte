@@ -47,7 +47,7 @@
     }
 
     function handleKeypress(event: KeyboardEvent) {
-        
+
     }
 
     function getValueByPath(obj, path) {
@@ -110,60 +110,96 @@
 
         let access_token = localStorage.getItem('access_token');
 
-        //@ts-ignore
-        if ($datasetObj.files.length === 0) {
-            alert("Please upload at least one file before finishing the submission.");
-            return; 
-        }
-        //@ts-ignore
-        const fileQueue = new Array($datasetObj.files.length).fill().map((_, i) => i).reverse();
-        let activeConnections = 0, threadsQuantity = 10;
-        sendNextFile();
+        if($datasetObj.file_transfer_mode === "manual_upload") {
+          console.log($datasetObj.files)
+          //@ts-ignore
+          if (Object.keys($datasetObj.files).length === 0) {
+              alert("Please upload at least one file before finishing the submission.");
+              return;
+          }
+          //@ts-ignore
+          const fileQueue = new Array($datasetObj.files.length).fill().map((_, i) => i).reverse();
+          let activeConnections = 0, threadsQuantity = 10;
+          sendNextFile();
 
-        function sendNextFile() {
-            if (activeConnections >= threadsQuantity) {
-                return;
-            }
-            if (!fileQueue.length) {
-                if (!activeConnections) {
-                    index = 0;
-                    fileId=0;
-                    $datasetObj = Schemas.getObjectFromSchema('dataset');
-                    executeHook(0);
-                    currentStep=0;
-                }
-                return;
-            }
-            fileId = fileQueue.pop()!;
-            //@ts-ignore
-            const file = $datasetObj.files[fileId];
-            let formData = new FormData();
-            formData.set('file', file, file.name);
-            //@ts-ignore
-            formData.set('metaData', JSON.stringify($datasetObj.metadata));
+          function sendNextFile() {
+              if (activeConnections >= threadsQuantity) {
+                  return;
+              }
+              if (!fileQueue.length) {
+                  if (!activeConnections) {
+                      index = 0;
+                      fileId=0;
+                      $datasetObj = Schemas.getObjectFromSchema('dataset');
+                      executeHook(0);
+                      currentStep=0;
+                  }
+                  return;
+              }
+              fileId = fileQueue.pop()!;
+              //@ts-ignore
+              const file = $datasetObj.files[fileId];
+              let formData = new FormData();
+              formData.set('file', file, file.name);
+              //@ts-ignore
+              formData.set('metaData', JSON.stringify($datasetObj.metadata));
 
-            let pathArr = file.webkitRelativePath.split('/');
-            //@ts-ignore
-            pathArr[0] = $datasetObj.metadata.title;
-            let path = pathArr.slice(0, -1).join('/');
-            formData.set('path', path);
-            activeConnections++;
-            let base_url = 'https://dmz-web-169.ipk-gatersleben.de/submission';
-            // let base_url = 'http://localhost:8000';
-            const resp = fetch(`${base_url}/upload/dataset`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            }).then((res) => {
-                activeConnections--;
-                sendNextFile();
-            }).catch((err) => {
-                console.error("Error uploading file:", err);
-                activeConnections--;
-                fileQueue.push(fileId);
-            });
+              let pathArr = file.webkitRelativePath.split('/');
+              //@ts-ignore
+              pathArr[0] = $datasetObj.metadata.title;
+              let path = pathArr.slice(0, -1).join('/');
+              formData.set('path', path);
+              activeConnections++;
+              let base_url = 'https://dmz-web-169.ipk-gatersleben.de/submission';
+              // let base_url = 'http://localhost:8000';
+              const resp = fetch(`${base_url}/upload/dataset`, {
+                  method: 'POST',
+                  body: formData,
+                  headers: {
+                      'Authorization': `Bearer ${access_token}`
+                  }
+              }).then((res) => {
+                  activeConnections--;
+                  sendNextFile();
+              }).catch((err) => {
+                  console.error("Error uploading file:", err);
+                  activeConnections--;
+                  fileQueue.push(fileId);
+              });
+          }
+        } else if($datasetObj.file_transfer_mode == "s3") {
+          const s3 = $datasetObj.s3_access || {};
+          const missing = [];
+          if (!s3.endpoint || s3.endpoint.trim() === "") missing.push("S3 Endpoint URL");
+          if (!s3.bucket || s3.bucket.trim() === "") missing.push("Bucket Name");
+          if (!s3.accessKey || s3.accessKey.trim() === "") missing.push("Access Key");
+          if (!s3.secretKey || s3.secretKey.trim() === "") missing.push("Secret Key");
+          if (missing.length > 0) {
+              alert("Please fill out the following S3 field(s):\n" + missing.join(", "));
+              return;
+          }
+          let base_url = 'https://dmz-web-169.ipk-gatersleben.de/submission';
+          // let base_url = 'http://localhost:8000';
+          let formData = new FormData();
+          for (const key in $datasetObj) {
+              let value = $datasetObj[key];
+              if (typeof value === "object") {
+                  formData.append(key, JSON.stringify(value));
+              } else {
+                  formData.append(key, value);
+              }
+          }
+          fetch(`${base_url}/upload/s3`, {
+              method: 'POST',
+              body: formData,
+              headers: {
+                  'Authorization': `Bearer ${access_token}`
+                  // Do NOT set Content-Type for FormData, browser will handle it
+              }
+          }).then((res) => {
+          }).catch((err) => {
+              console.error("Error submitting S3 info:", err);
+          });
         }
     }
 
@@ -175,7 +211,7 @@
 
     <h2 class="text-2xl font-bold">Step {currentStep+1} of {steps.length}</h2>
     <p class="font-semibold text-neutral-500 m-2">{steps[currentStep].title}</p>
-    
+
     <div class="p-0">
         <div onkeypress={handleKeypress} role="button" tabindex="0" aria-pressed="false">
             {#key currentStep}
@@ -190,12 +226,12 @@
                     <FieldWrapper component={fieldTypes[field.type as keyof typeof fieldTypes]} jsonPath={field.mapping.jsonPath} field={field} />
                     {/each}
                 {/if}
-            
+
                 {#if steps[currentStep].component}
                     <ComponentWrapper
-                        component={componentTypes[steps[currentStep].component as keyof typeof componentTypes]} 
-                        jsonPath={steps[currentStep].jsonPath} 
-                        componentConfig={steps[currentStep].componentConfig} 
+                        component={componentTypes[steps[currentStep].component as keyof typeof componentTypes]}
+                        jsonPath={steps[currentStep].jsonPath}
+                        componentConfig={steps[currentStep].componentConfig}
                         validated={validated}
                     />
                 {/if}
