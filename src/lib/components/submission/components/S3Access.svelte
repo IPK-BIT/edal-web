@@ -3,7 +3,8 @@
     endpoint: "",
     bucket: "",
     accessKey: "",
-    secretKey: ""
+    secretKey: "",
+    region: ""
   };
 
   function handleInput(e: Event, field: string) {
@@ -34,6 +35,18 @@
       type="text"
       bind:value={value.bucket}
       on:input={(e) => handleInput(e, "bucket")}
+      autocomplete="off"
+    />
+  </div>
+  <div>
+    <label class="label">
+      <span class="label-text">Region</span>
+    </label>
+    <input
+      class="input input-bordered w-full"
+      type="text"
+      bind:value={value.region}
+      on:input={(e) => handleInput(e, "region")}
       autocomplete="off"
     />
   </div>

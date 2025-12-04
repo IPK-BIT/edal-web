@@ -99,3 +99,5 @@ const storesDataset = createDatasetStoresSynced();
 
 export const datasetObj = storesDataset.DatasetObj;
 export const datasetStr = storesDataset.DatasetStr;
+
+export const currentStep = writable(0);

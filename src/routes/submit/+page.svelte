@@ -5,6 +5,7 @@
 	import { datasetObj } from "$lib/stores/dataset";
 	import generalConfig from "$lib/config/general.json";
 	import { onMount } from "svelte";
+	import ProgressBar from "$lib/components/submission/ProgressBar.svelte";
 
 	onMount(async () => {
     	$datasetObj = Schemas.getObjectFromSchema('dataset');
@@ -16,5 +17,6 @@
 	{#if generalConfig.env === 'dev'}
     <Console/>
 	{/if}
+	<ProgressBar/>
     <Questionnaire/>
 </section>

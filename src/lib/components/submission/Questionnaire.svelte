@@ -5,19 +5,22 @@
     import steps from "$lib/config/steps.json";
 	import Textarea from "./fields/Textarea.svelte";
 	import License from "./fields/License.svelte";
+    import OntologyAnnotations from "./fields/OntologyAnnotations.svelte";
 	import People from "./components/People.svelte";
 	import Files from "./components/Files.svelte";
     import Ddla from "./components/Ddla.svelte";
 	import { datasetObj } from "$lib/stores/dataset";
 	import { onMount } from "svelte";
 	import Schemas from "$lib";
+    import { currentStep } from "$lib/stores/dataset";
 
-    let currentStep = $state(0);
+    // let $currentStep = $state(0);
 
     const fieldTypes = {
         'string': String,
         'textarea': Textarea,
         'license': License,
+        'onto-autocomplete': OntologyAnnotations
     }
 
     const componentTypes = {
@@ -27,8 +30,8 @@
     }
 
     onMount(()=>{
-        if (currentStep === 0) {
-            executeHook(currentStep);
+        if ($currentStep === 0) {
+            executeHook($currentStep);
         }
     })
 
@@ -57,7 +60,7 @@
 
     function next() {
         // Validate required fields for the current step
-        const step = steps[currentStep];
+        const step = steps[$currentStep];
         if (step.fields) {
             const missing = [];
             for (const field of step.fields) {
@@ -86,15 +89,15 @@
                 return;
             }
         }
-        if (currentStep < steps.length - 1) {
-            currentStep += 1;
-            executeHook(currentStep);
+        if ($currentStep < steps.length - 1) {
+            $currentStep += 1;
+            executeHook($currentStep);
         }
     }
 
     function prev() {
-        if (currentStep > 0) {
-            currentStep -= 1;
+        if ($currentStep > 0) {
+            $currentStep -= 1;
         }
     }
 
@@ -132,7 +135,7 @@
                       fileId=0;
                       $datasetObj = Schemas.getObjectFromSchema('dataset');
                       executeHook(0);
-                      currentStep=0;
+                      $currentStep=0;
                   }
                   return;
               }
@@ -209,29 +212,29 @@
 
 <section class="border border-neutral-300 rounded-lg p-4">
 
-    <h2 class="text-2xl font-bold">Step {currentStep+1} of {steps.length}</h2>
-    <p class="font-semibold text-neutral-500 m-2">{steps[currentStep].title}</p>
+    <h2 class="text-2xl font-bold">Step {$currentStep+1} of {steps.length}</h2>
+    <p class="font-semibold text-neutral-500 m-2">{steps[$currentStep].title}</p>
 
     <div class="p-0">
         <div onkeypress={handleKeypress} role="button" tabindex="0" aria-pressed="false">
-            {#key currentStep}
-                {#if steps[currentStep].text}
-                    {#each steps[currentStep].text as paragraph}
+            {#key $currentStep}
+                {#if steps[$currentStep].text}
+                    {#each steps[$currentStep].text as paragraph}
                     <p class="mx-4 text-neutral-600 text-sm">{paragraph}</p>
                     {/each}
                 {/if}
 
-                {#if steps[currentStep].fields}
-                    {#each steps[currentStep].fields as field}
+                {#if steps[$currentStep].fields}
+                    {#each steps[$currentStep].fields as field}
                     <FieldWrapper component={fieldTypes[field.type as keyof typeof fieldTypes]} jsonPath={field.mapping.jsonPath} field={field} />
                     {/each}
                 {/if}
 
-                {#if steps[currentStep].component}
+                {#if steps[$currentStep].component}
                     <ComponentWrapper
-                        component={componentTypes[steps[currentStep].component as keyof typeof componentTypes]}
-                        jsonPath={steps[currentStep].jsonPath}
-                        componentConfig={steps[currentStep].componentConfig}
+                        component={componentTypes[steps[$currentStep].component as keyof typeof componentTypes]}
+                        jsonPath={steps[$currentStep].jsonPath}
+                        componentConfig={steps[$currentStep].componentConfig}
                         validated={validated}
                     />
                 {/if}
@@ -242,11 +245,11 @@
     <div class="divider"></div>
 
     <div class="m-2 flow-root">
-        {#if currentStep > 0}
+        {#if $currentStep > 0}
         <button class="btn btn-secondary" onclick={prev}>Previous</button>
         {/if}
 
-        {#if currentStep < steps.length - 1}
+        {#if $currentStep < steps.length - 1}
         <button class="btn btn-primary float-right" onclick={next}>Next</button>
         {:else}
         <button class="btn btn-primary float-right" onclick={finish}>Finish</button>

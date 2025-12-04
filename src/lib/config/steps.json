@@ -1,5 +1,6 @@
 [
     {
+        "shortTitle": "DDLA",
         "title": "Data Deposition and License Agreement",
         "text": [
             "Please read and accept the Data Deposition and License Agreement (DDLA) before proceeding with the submission of your dataset.",
@@ -17,6 +18,7 @@
                 }
             }
         ],
+        "shortTitle": "Basic Info",
         "title": "Please provide basic information on the dataset",
         "text": [
             "Fill in the title and description of your dataset. Make sure to provide a clear and concise description to help others understand the content and purpose of your dataset.",
@@ -50,6 +52,24 @@
         ]
     },
     {
+        "shortTitle": "Subject Selection",
+        "title": "Please describe your dataset",
+        "text": [
+            "Here is the explanation how the AutocompleteWidget Field works."
+        ],
+        "fields": [
+            {
+                "type": "onto-autocomplete",
+                "label": "Subjects",
+                "required": false,
+                "mapping": {
+                    "jsonPath": "metadata.subjects"
+                }
+            }
+        ]
+    },
+    {
+        "shortTitle": "Authors",
         "title": "Please provide information on the authors of the dataset",
         "text": [
             "Add the names and affiliations of the authors who contributed to the dataset.",
@@ -65,6 +85,7 @@
         "jsonPath": "metadata.authors"
     },
     {
+        "shortTitle": "Files",
         "title": "Please upload the files of the dataset",
         "text": [
             "Upload the files that make up your dataset. You can add multiple files as needed."
