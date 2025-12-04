@@ -17,12 +17,26 @@
                     value: item['orcid-id']
                 };
             });
-            console.log('ORCID results:', results);
             return results;
         } else {
-            console.log('No ORCID results found');
             return [];
         }
+    }
+
+    function handleRoridFetch(data: { items: Array<{ id: string, names: Array<{ types?: string[]; value?: string }> }> }) {
+        console.log('ROR data fetched:', data);
+        let results = (data.items || []).map((item) => {
+            const displayName =
+                item.names?.find((n) => Array.isArray(n.types) && n.types.includes('ror_display'))?.value
+                || item.names?.[0]?.value
+                || '';
+            return {
+                obj: item,
+                text: displayName,
+                value: item.id
+            }
+        })
+        return results;
     }
 
     function syncSignedInUser() {
@@ -51,6 +65,7 @@
     } = $props();
 
     let orcid = $state({});
+    let rorid = $state({});
 
     $effect(() => {
         if (
@@ -70,6 +85,28 @@
         } else if (orcid === '' && person.orcid) {
             // clear person.orcid when selection is cleared
             person.orcid = '';
+        }
+    });
+
+    $effect(() => {
+        console.log('RORID changed:', rorid);
+        if (
+            rorid &&
+            typeof rorid === 'object' &&
+            'obj' in rorid &&
+            rorid.obj &&
+            typeof rorid.obj === 'object' &&
+            'id' in (rorid.obj as Record<string, any>)
+        ) {
+            console.log('Updating person with new RORID');
+            const newRorid = (rorid.obj as Record<string, any>)['id'];
+            if (person.rorid !== newRorid) {
+                person.rorid = newRorid;
+                person.affiliation = rorid['text'];
+            }
+        } else if (rorid === '' && person.rorid) {
+            // clear person.orcid when selection is cleared
+            person.rorid = '';
         }
     });
 
@@ -95,7 +132,7 @@
             {#if person.orcid}
                 <div class="p-2 border rounded-md flex justify-between items-center" style="border-color: color-mix(in oklab, var(--color-base-content) 20%, #0000);">
                     <span>{person.orcid}</span>
-                    <button class="btn btn-xs btn-warning" onclick={() => { orcid = {}; person.orcid=''; person.firstName = ''; person.lastName = ''; }}>Remove</button>
+                    <button class="btn btn-xs btn-error" onclick={() => { orcid = {}; person.orcid=''; person.firstName = ''; person.lastName = ''; }}>Remove</button>
                 </div>
             {:else}
              <Svelecte
@@ -109,16 +146,40 @@
             />
             {/if}
         </fieldset>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <fieldset class="fieldset">
-                <legend class="fieldset-legend">First Name</legend>
-                <input type="text" class="input w-full" bind:value={person.firstName} />
+                <legend class="fieldset-legend"><span class="label-text">First Name</span></legend>
+                <input type="text" class="input input-bordered w-full" bind:value={person.firstName} />
             </fieldset>
             <fieldset class="fieldset">
-                <legend class="fieldset-legend">Last Name</legend>
-                <input type="text" class="input w-full" bind:value={person.lastName} />
+                <legend class="fieldset-legend"><span class="label-text">Last Name</span></legend>
+                <input type="text" class="input input-bordered w-full" bind:value={person.lastName} />
             </fieldset>
+            <div class="flex justify-end">
+                <button class="btn btn-primary btn-outline w-full md:w-auto" onclick={syncSignedInUser}>
+                    Sync signed in user info
+                </button>
+            </div>
         </div>
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend">ROR ID</legend>
+            {#if person.rorid}
+                <div class="p-2 border rounded-md flex justify-between items-center" style="border-color: color-mix(in oklab, var(--color-base-content) 20%, #0000);">
+                    <span>{person.rorid}</span>
+                    <button class="btn btn-xs btn-error" onclick={() => { rorid = {}; person.rorid=''; person.affiliation = ''; }}>Remove</button>
+                </div>
+            {:else}
+             <Svelecte
+                bind:value={rorid}
+                class="w-full"
+                valueAsObject={true}
+                placeholder="Search for ROR ID of author's affiliation"
+                fetch="https://api.ror.org/v2/organizations?query=[query]"
+                fetchProps={{ headers: { 'Content-Type': 'application/json' } }}
+                fetchCallback={handleRoridFetch}
+            />
+            {/if}
+        </fieldset>
         <fieldset class="fieldset">
             <legend class="fieldset-legend">Affiliation</legend>
             <input type="text" class="input w-full" bind:value={person.affiliation} />
@@ -147,9 +208,6 @@
         </button>
         <button class="btn btn-sm btn-error" onclick={() => onremovePerson()}>
             Remove {person.givenName || 'Person'}
-        </button>
-        <button class="btn btn-sm btn-ghost" onclick={syncSignedInUser}>
-            Sync signed in user info
         </button>
     </div>
     {:else}
