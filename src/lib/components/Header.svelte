@@ -75,8 +75,10 @@
     }
 
     function logout() {
-        // Placeholder for logout functionality
-        console.log('User logged out');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        accesToken = null;
+        window.location.href = '/';
     }
 </script>
 
