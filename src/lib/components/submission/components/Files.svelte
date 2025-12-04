@@ -11,7 +11,7 @@
   // Default options if not provided via componentConfig
   let options = [
     { label: "Local file upload", value: "local" },
-    { label: "S3 Access", value: "s3" }
+    { label: "Object Store", value: "s3" }
   ];
 
   // Use options from componentConfig if available
@@ -26,7 +26,7 @@
 
 </script>
 
-<div class="tabs mb-4">
+<div class="tabs tabs-lift my-4">
   {#each options as opt}
     <a
       class="tab tab-bordered {selectedTab === opt.value ? 'tab-active' : ''}"
@@ -44,5 +44,5 @@
 {/if}
 
 {#if selectedTab === "s3"}
-  <S3Access bind:value={$datasetObj.s3_access} />
+  <S3Access bind:value={$datasetObj.s3access} />
 {/if}

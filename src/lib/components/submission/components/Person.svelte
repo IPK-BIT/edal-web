@@ -117,7 +117,7 @@
     {#if editMode}
     <div class="gap-2">
         <fieldset class="fieldset">
-            <legend class="fieldset-legend">AuthorRole</legend>
+            <legend class="fieldset-legend">AuthorRole<span class="text-red-500">*</span></legend>
             <div style="border-color: color-mix(in oklab, var(--color-base-content) 20%, #0000);" class="p-2 border rounded-md flex flex-wrap gap-4">
                 {#each allowedRoles as role}
                     <label class="inline-flex items-center mr-4">

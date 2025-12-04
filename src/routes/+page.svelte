@@ -1,16 +1,6 @@
 <script>
-	import logo from '$lib/assets/edal_logo.png';
-
-	// Lightweight interactive bits for the landing page
-	let showIntro = true;
-	let showDemo = false;
-
-	function toggleDemo() {
-		showDemo = !showDemo;
-		if (showDemo) {
-			showIntro = false;
-		}
-	}
+	import logo from '$lib/assets/favicon.png';
+	
 </script>
 
 <section class="mx-auto my-9 max-w-5xl p-6">
@@ -45,9 +35,7 @@
 			</p>
 
 			<div class="my-4 flex gap-3">
-				<button class="btn btn-primary" on:click={toggleDemo}
-					>{showDemo ? 'Hide demo' : 'Quick tour'}</button
-				>
+				<a class="btn btn-primary" target="_blank" href="https://ipk-bit.github.io/edal-pgp-knowledgebase">Quick Tour</a>
 			</div>
 
 			<ul class="grid gap-2 text-slate-700">
@@ -60,7 +48,7 @@
 			</ul>
 		</div>
 
-		<div class="w-96" aria-hidden={showIntro ? 'false' : 'true'}>
+		<div class="w-96" aria-hidden="true">
 			<div class="card rounded-lg bg-base-100 p-4 shadow">
 				<div class="mb-3 flex items-center justify-between">
 					<div>
@@ -142,26 +130,6 @@
 			</article>
 		</div>
 	</section>
-
-	{#if showDemo}
-		<section class="card mt-4 rounded-lg bg-base-100 p-4" aria-live="polite">
-			<h4 class="font-semibold">Interactive demo</h4>
-			<div class="mt-3 flex gap-2">
-				<button class="btn btn-sm btn-primary">Upload dataset</button>
-				<button class="btn btn-outline btn-sm">Add metadata</button>
-				<button
-					class="btn btn-ghost btn-sm"
-					on:click={() => {
-						showDemo = false;
-						showIntro = true;
-					}}>Close demo</button
-				>
-			</div>
-			<div class="mt-2 text-sm text-slate-500">
-				This demo shows a simplified dataset upload and metadata flow; no real data is stored.
-			</div>
-		</section>
-	{/if}
 
 	<footer class="mt-7 flex items-center justify-between text-slate-600">
 		<div>

@@ -168,7 +168,7 @@
               });
           }
         } else if($datasetObj.file_transfer_mode == "s3") {
-          const s3 = $datasetObj.s3_access || {};
+          const s3 = $datasetObj.s3access || {};
           const missing = [];
           if (!s3.endpoint || s3.endpoint.trim() === "") missing.push("S3 Endpoint URL");
           if (!s3.bucket || s3.bucket.trim() === "") missing.push("Bucket Name");
@@ -239,6 +239,7 @@
         </div>
     </div>
 
+    <div class="divider"></div>
 
     <div class="m-2 flow-root">
         {#if currentStep > 0}

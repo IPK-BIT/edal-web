@@ -14,7 +14,7 @@
       "description": "Files",
       "type": "object"
     },
-    "s3_access": {
+    "s3access": {
       "description": "S3 access info",
       "type": "object"
     },

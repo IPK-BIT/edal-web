@@ -4,7 +4,6 @@
 	import { onMount } from 'svelte';
     import generalConfig from '$lib/config/general.json';
     import { generateCodeChallenge, generateCodeVerifier } from '$lib/js/oidc';
-	import { redirect } from '@sveltejs/kit';
 
     let accesToken: string | null = null;
 
