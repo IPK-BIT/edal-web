@@ -41,7 +41,7 @@
                 if (datasetObj.keyed) {
                     let obj = datasetObj.keyed(hook.state.mapping);
                     let emptyObj = Schemas.getObjectFromSchema(hook.type)
-                    if (hook.state.count === 1) {
+                    if (hook.state.count === 1 && Object.keys(obj).length === 0) {
                         obj.set(emptyObj);
                     }
                 }
