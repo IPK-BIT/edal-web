@@ -36,6 +36,7 @@ export async function generateCodeChallenge(codeVerifier: string) {
 }
 
 export function checkTokenValidity(token: string) {
+    // console.log('Checking token validity...', token);
     if (!token) {
         return false;
     }
@@ -78,6 +79,10 @@ export async function retrieveToken(code: string) {
 }
 
 export async function renewToken(refreshToken: string) {
+    if (!checkTokenValidity(refreshToken)) {
+        return false;
+    }
+
     let oidcConfig = await retrieveOidcConfig();
     let data = {
         grant_type: 'refresh_token',
@@ -96,6 +101,7 @@ export async function renewToken(refreshToken: string) {
     let tokenResponse = await response.json();
     localStorage.setItem('access_token', tokenResponse.access_token);
     localStorage.setItem('refresh_token', tokenResponse.refresh_token);
+    return true;
 }
 
 export async function performLogin(codeChallenge: string) {

@@ -2,7 +2,7 @@
     import banner from '$lib/assets/header_bg2.png';
     import logo from '$lib/assets/edal_logo.png';
 	import { onMount } from 'svelte';
-    import { generateCodeChallenge, generateCodeVerifier, performLogin, retrieveOidcConfig, retrieveToken } from '$lib/js/oidc';
+    import { checkTokenValidity, generateCodeChallenge, generateCodeVerifier, performLogin, renewToken, retrieveOidcConfig, retrieveToken } from '$lib/js/oidc';
 
     let accesToken: string | null = null;
 
@@ -11,23 +11,48 @@
 
     let oidcConfig: any = {};
 
-    onMount(async ()=> {
-        oidcConfig = await retrieveOidcConfig();
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        if (code) {
-            await retrieveToken(code);
-        }
+    onMount(()=> {
+        let timer: ReturnType<typeof setTimeout>;
 
-        accesToken = localStorage.getItem('access_token');
-        if (accesToken) {
-            username = JSON.parse(atob(accesToken.split('.')[1])).preferred_username;
-        }
+        (async ()=> {
+            oidcConfig = await retrieveOidcConfig();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            if (code) {
+                await retrieveToken(code);
+            }
 
-        codeVerifier = generateCodeVerifier();
-        codeChallenge = await generateCodeChallenge(codeVerifier);
-        localStorage.setItem('code_verifier', codeVerifier);
+            accesToken = localStorage.getItem('access_token');
+            if (accesToken) {
+                username = JSON.parse(atob(accesToken.split('.')[1])).preferred_username;
+            }
+
+            codeVerifier = generateCodeVerifier();
+            codeChallenge = await generateCodeChallenge(codeVerifier);
+            localStorage.setItem('code_verifier', codeVerifier);
+
+            const checkAndSchedule = () => {
+                if(!checkTokenValidity(localStorage.getItem('access_token')||'')) {
+                    if(!(renewToken(localStorage.getItem('refresh_token')||''))) {
+                        console.log('Failed to renew token, user needs to login again.');
+                        logout();
+                    } else {
+                        console.log('Access token renewed successfully.');
+                    }
+                } else {
+                    console.log('Access token is still valid.');
+                }
+                // schedule next check
+                timer = setTimeout(checkAndSchedule, 5000);
+            };
+
+            // start loop
+            timer = setTimeout(checkAndSchedule, 5000);
+        })();
+
+        // cleanup when component is destroyed
+        return () => clearTimeout(timer);
     });
     let username: string = 'Guest';
 
