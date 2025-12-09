@@ -79,8 +79,8 @@
         "component": "people",
         "componentConfig": {
             "allowedRoles": [
-                { "label": "Creator", "value": "Creator" },
-                { "label": "Contributor", "value": "Contributor" }
+                { "label": "Creator", "value": "Creator", "tooltip": "The primary individual responsible for creating the dataset." },
+                { "label": "Contributor", "value": "Contributor", "tooltip": "An individual who contributed to the dataset but is not the primary creator." }
             ]
         },
         "jsonPath": "metadata.authors"

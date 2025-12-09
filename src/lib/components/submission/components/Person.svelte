@@ -122,7 +122,14 @@
                 {#each allowedRoles as role}
                     <label class="inline-flex items-center mr-4">
                         <input type="radio" class="radio radio-sm" name="authorRole-{person.id}" value={role.value} bind:group={person.role} />
-                        <span class="ml-2">{role.label}</span>
+                        <span class="ml-2" title={role.tooltip} aria-label={role.tooltip}>
+                            {role.label}
+                            {#if role.tooltip}
+                                <span class="text-sm" title={role.tooltip} aria-hidden="true">
+                                    &#9432;
+                                </span>
+                            {/if}
+                        </span>
                     </label>
                 {/each}
             </div>
