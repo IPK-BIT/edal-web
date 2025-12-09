@@ -130,7 +130,7 @@
     let fileId = $state(0);
 
     function finish() {
-        if (!confirm("You are about to finish the submission. Do you want to continue?")) {
+        if (!confirm("By clicking OK, you acknowledge that you have read and agree to the Data Deposition and License Agreement (DLA).")) {
             return;
         }
 
