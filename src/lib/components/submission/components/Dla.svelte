@@ -22,7 +22,7 @@
         {#if !pdfOpened}
             <span class="text-sm text-gray-500">You must open the DDLA before agreeing.</span>
         {:else}
-            <span class="text-sm text-green-600">DDLA opened — you can now check the box.</span>
+            <span class="text-sm text-green-600">DDLA opened — you can now proceed.</span>
         {/if}
     </div>
 </div>
