@@ -8,7 +8,7 @@
     import OntologyAnnotations from "./fields/OntologyAnnotations.svelte";
 	import People from "./components/People.svelte";
 	import Files from "./components/Files.svelte";
-    import Ddla from "./components/Ddla.svelte";
+    import Dla from "./components/Dla.svelte";
 	import { datasetObj } from "$lib/stores/dataset";
 	import { onMount } from "svelte";
 	import Schemas from "$lib";
@@ -26,7 +26,7 @@
     const componentTypes = {
         'people': People,
         'files': Files,
-        'ddla': Ddla,
+        'dla': Dla,
     }
 
     onMount(()=>{
@@ -36,13 +36,17 @@
     })
 
     function executeHook(idx: number) {
+        console.log("Executing hook for step:", idx);
         if (steps[idx] && steps[idx].hooks && Array.isArray(steps[idx].hooks)) {
+            console.log("Found hooks:", steps[idx].hooks);
             steps[idx].hooks.forEach((hook) => {
                 if (datasetObj.keyed) {
+                    console.log("Executing hook for type:", hook.type);
                     let obj = datasetObj.keyed(hook.state.mapping);
                     let emptyObj = Schemas.getObjectFromSchema(hook.type)
-                    if (hook.state.count === 1 && Object.keys(obj).length === 0) {
+                    if (hook.state.count === 1) {
                         obj.set(emptyObj);
+                        console.log("Initialized single object for", hook.type, obj);
                     }
                 }
             })
@@ -89,6 +93,15 @@
                 return;
             }
         }
+
+        // Additional validation for DLA step
+        if (step.jsonPath === "dlaRead") {
+            if (!$datasetObj.dlaRead) {
+                alert("You must read the Data Deposition and License Agreement (DDLA) prior to proceeding.");
+                return;
+            }
+        }
+
         if ($currentStep < steps.length - 1) {
             $currentStep += 1;
             executeHook($currentStep);
@@ -249,7 +262,9 @@
         <button class="btn btn-secondary" onclick={prev}>Previous</button>
         {/if}
 
-        {#if $currentStep < steps.length - 1}
+        {#if $currentStep === 0}
+        <button class="btn btn-primary float-right" onclick={next}>I agree</button>
+        {:else if $currentStep < steps.length - 1}
         <button class="btn btn-primary float-right" onclick={next}>Next</button>
         {:else}
         <button class="btn btn-primary float-right" onclick={finish}>Finish</button>

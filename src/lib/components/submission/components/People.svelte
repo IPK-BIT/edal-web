@@ -7,6 +7,8 @@
         componentConfig = {}
     } = $props();
 
+    $inspect(people);
+
     function addPerson() {
         people = [...people, Schemas.getObjectFromSchema('person')];
     }

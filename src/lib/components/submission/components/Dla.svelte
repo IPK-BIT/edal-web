@@ -1,9 +1,9 @@
 <script lang="ts">
     let { 
-        validated 
+        value: pdfOpened = $bindable(),
     } = $props();
 
-    let pdfOpened = $state(false);
+    // let pdfOpened = $state(false);
 
     function openDdla() {
         const ddlaUrl = 'https://edal-pgp.ipk-gatersleben.de/document/PGP-contract.pdf'; // Adjust the path as necessary
