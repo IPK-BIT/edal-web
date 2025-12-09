@@ -100,5 +100,15 @@
             ]
         },
         "jsonPath": "files"
+    },
+    {
+        "shortTitle": "Preview",
+        "title": "Please review and submit your dataset",
+        "text": [
+            "Review the information and files you have provided for your dataset.",
+            "If everything looks good, you can submit your dataset for deposition."
+        ],
+        "component": "preview",
+        "jsonPath": ""
     }
 ]

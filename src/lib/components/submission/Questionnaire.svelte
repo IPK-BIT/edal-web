@@ -9,6 +9,7 @@
 	import People from "./components/People.svelte";
 	import Files from "./components/Files.svelte";
     import Dla from "./components/Dla.svelte";
+    import Preview from "./components/Preview.svelte";
 	import { datasetObj } from "$lib/stores/dataset";
 	import { onMount } from "svelte";
 	import Schemas from "$lib/js";
@@ -27,6 +28,7 @@
         'people': People,
         'files': Files,
         'dla': Dla,
+        'preview': Preview,
     }
 
     onMount(()=>{
