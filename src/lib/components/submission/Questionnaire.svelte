@@ -11,7 +11,7 @@
     import Dla from "./components/Dla.svelte";
 	import { datasetObj } from "$lib/stores/dataset";
 	import { onMount } from "svelte";
-	import Schemas from "$lib";
+	import Schemas from "$lib/js";
     import { currentStep } from "$lib/stores/dataset";
 
     // let $currentStep = $state(0);

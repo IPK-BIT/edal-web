@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Schemas from "$lib";
+	import Schemas from "$lib/js";
 	import Console from "$lib/components/submission/Console.svelte";
 	import Questionnaire from "$lib/components/submission/Questionnaire.svelte";
 	import { datasetObj } from "$lib/stores/dataset";

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Schemas from "$lib";
+	import Schemas from "$lib/js";
 	import Person from "./Person.svelte";
 
     let {
