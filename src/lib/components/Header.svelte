@@ -2,8 +2,7 @@
     import banner from '$lib/assets/header_bg2.png';
     import logo from '$lib/assets/edal_logo.png';
 	import { onMount } from 'svelte';
-    import generalConfig from '$lib/config/general.json';
-    import { generateCodeChallenge, generateCodeVerifier } from '$lib/js/oidc';
+    import { generateCodeChallenge, generateCodeVerifier, performLogin, retrieveOidcConfig, retrieveToken } from '$lib/js/oidc';
 
     let accesToken: string | null = null;
 
@@ -13,64 +12,27 @@
     let oidcConfig: any = {};
 
     onMount(async ()=> {
-        const response = await fetch(generalConfig.aai['openid-configuration']);
-        oidcConfig = await response.json();
+        oidcConfig = await retrieveOidcConfig();
         
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
-
         if (code) {
-            console.log('Authorization code returned:', code);
-            codeVerifier = localStorage.getItem('code_verifier') || '';
-            let data = {
-                grant_type: 'authorization_code',
-                code: code,
-                client_id: generalConfig.aai['client-id'],
-                redirect_uri: window.location.origin,
-                code_verifier: codeVerifier
-            }
-
-            let response = await fetch(oidcConfig.token_endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams(data).toString()
-            });
-
-            let tokenResponse = await response.json();
-            console.log('Token response:', tokenResponse);
-            localStorage.setItem('access_token', tokenResponse.access_token);
-            localStorage.setItem('refresh_token', tokenResponse.refresh_token);
-            window.history.replaceState({}, document.title, window.location.pathname);
+            await retrieveToken(code);
         }
 
         accesToken = localStorage.getItem('access_token');
+        if (accesToken) {
+            username = JSON.parse(atob(accesToken.split('.')[1])).preferred_username;
+        }
 
         codeVerifier = generateCodeVerifier();
         codeChallenge = await generateCodeChallenge(codeVerifier);
-
         localStorage.setItem('code_verifier', codeVerifier);
     });
+    let username: string = 'Guest';
 
     function login() {
-        let clientId = generalConfig.aai['client-id'];
-
-        console.log('Redirecting to AAI login...');
-
-        let auth_url = oidcConfig.authorization_endpoint;
-
-        const params = {
-            response_type: 'code',
-            client_id: clientId,
-            redirect_uri: window.location.origin,
-            scope: 'openid profile email',
-            code_challenge: codeChallenge,
-            code_challenge_method: 'S256'
-        }
-
-        const urlParams = new URLSearchParams(params).toString();
-        window.location.href = `${auth_url}?${urlParams}`;
+        performLogin(codeChallenge);
     }
 
     function logout() {
@@ -100,6 +62,9 @@
     <span class="text-lg font-semibold">e!DAL - Plant Genomics & Phenomics Research Data Repository</span>
   </div>
   <div class="navbar-end gap-2">
+    {#if accesToken}
+    <span>Hi, {username}</span>
+    {/if}
     <details class="dropdown dropdown-end">
         <summary class="btn m-1 btn-square btn-ghost" aria-label="Menu">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-10 w-10 stroke-current"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path> </svg>

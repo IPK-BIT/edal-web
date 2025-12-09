@@ -2,8 +2,30 @@
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.png';
 	import Header from '$lib/components/Header.svelte';
+	import { onMount } from 'svelte';
+	import { checkTokenValidity, renewToken } from '$lib/js/oidc';
 
 	let { children } = $props();
+
+	onMount(()=>{
+		let timer: ReturnType<typeof setTimeout>;
+
+		const checkAndSchedule = () => {
+			if(!checkTokenValidity(localStorage.getItem('access_token')||'')) {
+				renewToken(localStorage.getItem('refresh_token')||'');
+			} else {
+				console.log('Access token is still valid.');
+			}
+			// schedule next check
+			timer = setTimeout(checkAndSchedule, 5000);
+		};
+
+		// start loop
+		timer = setTimeout(checkAndSchedule, 5000);
+
+		// cleanup when component is destroyed
+		return () => clearTimeout(timer);
+	})
 </script>
 
 <svelte:head>
