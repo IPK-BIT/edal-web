@@ -139,7 +139,7 @@
                 bind:value={orcid}
                 class="w-full"
                 valueAsObject={true}
-                placeholder="Search for ORCID of author"
+                placeholder="Search for ORCID by author name"
                 fetch="https://pub.orcid.org/v3.0/expanded-search/?q=[query]"
                 fetchProps={{ headers: { 'Content-Type': 'application/json' } }}
                 fetchCallback={handleOrcidFetch}
