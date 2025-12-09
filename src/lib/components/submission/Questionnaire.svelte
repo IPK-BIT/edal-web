@@ -92,6 +92,16 @@
                 alert("You need to specify at least one author with the Creator role.");
                 return;
             }
+            let missingOrcids = [];
+            for (const author of authors) {
+                if (!author.orcid || author.orcid.trim() === "") {
+                    missingOrcids.push(author.lastName?`${author.firstName} ${author.lastName}`:"Unnamed Author");
+                }
+            }
+            if (missingOrcids.length > 0) {
+                alert("Please provide ORCID for the following author(s):\n" + missingOrcids.join(", "));
+                return;
+            }
         }
 
         // Additional validation for DLA step
@@ -223,7 +233,7 @@
 
 {#if steps.length > 0}
 
-<section class="border border-neutral-300 rounded-lg p-4">
+<section class="border border-neutral-300 rounded-lg p-4 mb-8">
 
     <h2 class="text-2xl font-bold">Step {$currentStep+1} of {steps.length}</h2>
     <p class="font-semibold text-neutral-500 m-2">{steps[$currentStep].title}</p>
