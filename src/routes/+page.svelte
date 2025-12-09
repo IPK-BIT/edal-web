@@ -14,7 +14,7 @@
 
 			<div>
 				<h1 class="text-lg font-semibold">e!DAL — Plant Genomics & Phenomics</h1>
-				<p class="text-sm text-slate-500">
+				<p class="text-sm text-neutral">
 					Research data repository for large, heterogeneous plant genomics and phenomics datasets.
 				</p>
 			</div>
@@ -26,7 +26,7 @@
 			<h2 class="text-2xl font-bold">
 				Publish large plant genomics & phenomics datasets with persistent DOIs
 			</h2>
-			<p class="text-justify text-slate-600">
+			<p class="text-justify text-neutral">
 				e!DAL-PGP as infrastructure to comprehensively publish plant research data. This covers in
 				particular cross-domain datasets that are not being published in central repositories
 				because of its volume or unsupported data scope, like image collections from plant
@@ -38,7 +38,7 @@
 				<a class="btn btn-primary" target="_blank" href="https://ipk-bit.github.io/edal-pgp-knowledgebase">Quick Tour</a>
 			</div>
 
-			<ul class="grid gap-2 text-slate-700">
+			<ul class="grid gap-2 text-neutral">
 				<li><strong>LS Login</strong> — institutional authentication and access control</li>
 				<li><strong>Large & heterogeneous data</strong> — handle genomes, images and more</li>
 				<li><strong>Rich metadata</strong> — apply community schemas for discoverability</li>
@@ -52,37 +52,26 @@
 			<div class="card rounded-lg bg-base-100 p-4 shadow">
 				<div class="mb-3 flex items-center justify-between">
 					<div>
-						<strong>Quick demo</strong>
-						<div class="text-sm text-slate-500">No keys are uploaded — everything runs locally</div>
+						<strong>Statistics</strong>
 					</div>
 					<div class="flex items-center gap-2 text-sm">
-						<span class="h-2 w-2 rounded-full bg-emerald-500 shadow-sm"></span> local
+						<span class="h-2 w-2 rounded-full bg-primary shadow-sm"></span> online
 					</div>
 				</div>
-
-				<div>
-					<div class="flex gap-3">
-						<div class="flex flex-1 items-center gap-3 rounded-lg bg-base-100 p-3 shadow-inner">
-							<div>
-								<div class="font-semibold">Upload</div>
-								<div class="text-sm text-slate-500">Add files and dataset assets</div>
-							</div>
-						</div>
-
-						<div class="flex flex-1 items-center gap-3 rounded-lg bg-base-100 p-3 shadow-inner">
-							<div>
-								<div class="font-semibold">Annotate</div>
-								<div class="text-sm text-slate-500">Describe using community metadata schemas</div>
-							</div>
-						</div>
+				<div class="stats stats-vertical text-neutral">
+					<div class="stat">
+						<div class="stat-title">Datasets published</div>
+						<div class="stat-value">327</div>
 					</div>
 
-					<div class="mt-3">
-						<div class="rounded-lg bg-base-100 p-3">
-							<div class="text-sm text-slate-500">Sample DOI</div>
-							<pre
-								class="mt-2 rounded bg-slate-900 p-2 font-mono text-sm whitespace-pre-wrap text-sky-100">doi:10.12345/edal.sampledataset</pre>
-						</div>
+					<div class="stat">
+						<div class="stat-title">Data volume</div>
+						<div class="stat-value">3.2 PB</div>
+					</div>
+
+					<div class="stat">
+						<div class="stat-title">Distinct download IPs</div>
+						<div class="stat-value">692,760</div>
 					</div>
 				</div>
 			</div>
@@ -98,9 +87,9 @@
 				>
 					1
 				</div>
-				<h4 class="font-semibold">Authenticate (LS Login)</h4>
+				<h4 class="font-semibold">Authenticate</h4>
 				<p class="text-sm text-base-content opacity-70">
-					Sign in using institutional LS Login for secure, trusted access control.
+					Sign in using LS Login for secure, trusted access control.
 				</p>
 			</article>
 
@@ -110,10 +99,9 @@
 				>
 					2
 				</div>
-				<h4 class="font-semibold">Describe & validate</h4>
+				<h4 class="font-semibold">Publish</h4>
 				<p class="text-sm text-base-content opacity-70">
-					Upload files and annotate them with metadata using community schemas (genomics, phenomics,
-					etc.).
+					Upload your dataset, provide rich metadata, and prepare it for publication.
 				</p>
 			</article>
 
@@ -123,31 +111,12 @@
 				>
 					3
 				</div>
-				<h4 class="font-semibold">Publish with DOI</h4>
+				<h4 class="font-semibold">Reuse</h4>
 				<p class="text-sm text-base-content opacity-70">
-					Mint a DOI, deposit archival copies, and make your dataset citable and discoverable.
+					Your dataset is assigned a DOI and publicly accessible for the research community.
 				</p>
 			</article>
 		</div>
 	</section>
-
-	<footer class="mt-7 flex items-center justify-between text-slate-600">
-		<div>
-			<small>e!DAL — publish large plant genomics & phenomics datasets with DOIs</small>
-		</div>
-		<div class="flex items-center gap-3">
-			<a
-				class="btn text-slate-500 btn-ghost btn-sm"
-				href="https://github.com/IPK-BIT/edal-web"
-			>
-				Source
-            </a>
-			<a
-				class="btn text-slate-500 btn-ghost btn-sm"
-				href="https://github.com/IPK-BIT/edal-web/issues"
-			>
-				Help
-			</a>
-		</div>
-	</footer>
 </section>
+
