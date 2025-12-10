@@ -35,13 +35,13 @@
             const checkAndSchedule = () => {
                 if(!checkTokenValidity(localStorage.getItem('access_token')||'')) {
                     if(!(renewToken(localStorage.getItem('refresh_token')||''))) {
-                        console.log('Failed to renew token, user needs to login again.');
+                        // console.log('Failed to renew token, user needs to login again.');
                         logout();
                     } else {
-                        console.log('Access token renewed successfully.');
+                        // console.log('Access token renewed successfully.');
                     }
                 } else {
-                    console.log('Access token is still valid.');
+                    // console.log('Access token is still valid.');
                 }
                 // schedule next check
                 timer = setTimeout(checkAndSchedule, 5000);

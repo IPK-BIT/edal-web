@@ -1,11 +1,13 @@
 import dataset_schema from '$lib/config/schemas/dataset-schema.json';
 import person_schema from '$lib/config/schemas/person-schema.json';
 import metadata_schema from '$lib/config/schemas/metadata-schema.json';
+import s3_connection_detaikls_schema from '$lib/config/schemas/s3-connection-details.json';
 
 const mapping = {
     'dataset': dataset_schema,
     'person': person_schema,
     'metadata': metadata_schema,
+    's3-connection-details': s3_connection_detaikls_schema,
 }
 
 export default class Schemas { 

@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "endpoint": {
+      "description": "S3 endpoint URL",
+      "type": "string",
+      "format": "uri"
+    },
+    "region": {
+      "description": "S3 region",
+      "type": "string"
+    },
+    "bucket": {
+      "description": "S3 bucket name",
+      "type": "string"
+    },
+    "accessKey": {
+      "description": "S3 access key ID",
+      "type": "string"
+    },
+    "secretKey": {
+      "description": "S3 secret access key",
+      "type": "string"  
+    }
+  }
+}

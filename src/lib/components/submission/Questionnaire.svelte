@@ -138,7 +138,7 @@
 
         let access_token = localStorage.getItem('access_token');
 
-        if($datasetObj.file_transfer_mode === "manual_upload") {
+        if($datasetObj.file_transfer_mode === "local") {
           console.log($datasetObj.files)
           //@ts-ignore
           if (Object.keys($datasetObj.files).length === 0) {
@@ -260,7 +260,6 @@
                         component={componentTypes[steps[$currentStep].component as keyof typeof componentTypes]}
                         jsonPath={steps[$currentStep].jsonPath}
                         componentConfig={steps[$currentStep].componentConfig}
-                        validated={validated}
                     />
                 {/if}
             {/key}

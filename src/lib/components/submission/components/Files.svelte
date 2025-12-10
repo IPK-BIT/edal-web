@@ -1,48 +1,47 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import FileUploader from "./FileUploader.svelte";
   import S3Access from "./S3Access.svelte";
-  import steps from "$lib/config/steps.json";
-  import { datasetObj } from "$lib/stores/dataset";
+  import FileUploader from "./FileUploader.svelte";
+	import { onMount } from "svelte";
+	import ComponentWrapper from "../wrapper/ComponentWrapper.svelte";
 
-  export let value: File[] = [];
-  export let componentConfig: any = {};
+  let {
+    value = $bindable(),
+    componentConfig
+  } = $props();
 
-  // Default options if not provided via componentConfig
-  let options = [
-    { label: "Local file upload", value: "local" },
-    { label: "Object Store", value: "s3" }
-  ];
-
-  // Use options from componentConfig if available
-  onMount(() => {
-    if (componentConfig && componentConfig.options) {
-      options = componentConfig.options;
+  onMount(()=>{
+    if (!value) {
+      value = componentConfig?.options?.[0]?.value;
     }
-    $datasetObj.file_transfer_mode = "manual_upload";
-  });
+  })
 
-  let selectedTab = options[0].value;
-
+  const components = {
+    "s3": S3Access,
+    "local": FileUploader
+  }
 </script>
 
-<div class="tabs tabs-lift my-4">
-  {#each options as opt}
-    <a
-      class="tab tab-bordered {selectedTab === opt.value ? 'tab-active' : ''}"
-      on:click={() => {
-        selectedTab = opt.value;
-        $datasetObj.file_transfer_mode = selectedTab === "s3" ? "s3" : "manual_upload";
+<div role="tablist" class="tabs tabs-border">
+  {#each componentConfig.options as option}
+    <button
+      role="tab"
+      class="tab {value === option.value ? 'tab-active' : ''}"
+      onclick={() => {
+        value = option.value;
       }}
-      >{opt.label}</a
     >
+      {option.label}
+    </button>
   {/each}
 </div>
 
-{#if selectedTab === "local"}
-  <FileUploader bind:value />
-{/if}
-
-{#if selectedTab === "s3"}
-  <S3Access bind:value={$datasetObj.s3access} />
-{/if}
+<div class="p-4">
+  {#if components[value as keyof typeof components]}
+  {#key value}
+  <ComponentWrapper
+    component={components[value as keyof typeof components]}
+    jsonPath={componentConfig.options.find((option: { value: any; }) => option.value === value).jsonPath}
+  />
+  {/key}
+  {/if}
+</div>

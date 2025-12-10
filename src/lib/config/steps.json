@@ -19,7 +19,7 @@
                 }
             }
         ],
-        "shortTitle": "Basic Info",
+        "shortTitle": "Basic Information",
         "title": "Please provide basic information on the dataset",
         "text": [
             "Fill in the title and description of your dataset. Make sure to provide a clear and concise description to help others understand the content and purpose of your dataset.",
@@ -53,7 +53,7 @@
         ]
     },
     {
-        "shortTitle": "Subject Selection",
+        "shortTitle": "Subjects",
         "title": "Please describe your dataset",
         "text": [
             "Here is the explanation how the AutocompleteWidget Field works."
@@ -93,13 +93,12 @@
         ],
         "component": "files",
         "componentConfig": {
-            "multiple": true,
             "options": [
-                { "label": "Local file upload", "value": "local" },
-                { "label": "S3 Access", "value": "s3" }
+                { "label": "Local file upload", "value": "local", "jsonPath": "files" },
+                { "label": "S3 Access", "value": "s3", "jsonPath": "s3access" }
             ]
         },
-        "jsonPath": "files"
+        "jsonPath": "file_transfer_mode"
     },
     {
         "shortTitle": "Preview",

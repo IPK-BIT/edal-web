@@ -16,12 +16,11 @@
     },
     "s3access": {
       "description": "S3 access info",
-      "type": "object"
+      "$ref": "s3-connection-details.json#"
     },
     "file_transfer_mode": {
       "description": "File transfer mode",
-      "type": "string",
-      "enum": ["s3", "manual_upload"]
+      "type": "string"
     }
   }
 }

@@ -2,7 +2,6 @@
     export let component;
     export let jsonPath = undefined;
     export let componentConfig = {};
-    export let validated = () => true;
 
     import { datasetObj } from "$lib/stores/dataset";
 
