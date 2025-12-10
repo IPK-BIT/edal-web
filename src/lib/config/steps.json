@@ -56,7 +56,8 @@
         "shortTitle": "Subjects",
         "title": "Please describe your dataset",
         "text": [
-            "Here is the explanation how the AutocompleteWidget Field works."
+            "Supply relevant subjects or keywords that describe the content of your dataset.",
+            "This will help others find your dataset when searching for related topics."
         ],
         "fields": [
             {

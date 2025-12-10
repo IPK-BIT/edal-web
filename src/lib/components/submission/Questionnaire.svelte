@@ -38,25 +38,17 @@
     })
 
     function executeHook(idx: number) {
-        console.log("Executing hook for step:", idx);
         if (steps[idx] && steps[idx].hooks && Array.isArray(steps[idx].hooks)) {
-            console.log("Found hooks:", steps[idx].hooks);
             steps[idx].hooks.forEach((hook) => {
                 if (datasetObj.keyed) {
-                    console.log("Executing hook for type:", hook.type);
                     let obj = datasetObj.keyed(hook.state.mapping);
                     let emptyObj = Schemas.getObjectFromSchema(hook.type)
                     if (hook.state.count === 1) {
                         obj.set(emptyObj);
-                        console.log("Initialized single object for", hook.type, obj);
                     }
                 }
             })
         }
-    }
-
-    function handleKeypress(event: KeyboardEvent) {
-
     }
 
     function getValueByPath(obj, path) {
@@ -139,7 +131,6 @@
         let access_token = localStorage.getItem('access_token');
 
         if($datasetObj.file_transfer_mode === "local") {
-          console.log($datasetObj.files)
           //@ts-ignore
           if (Object.keys($datasetObj.files).length === 0) {
               alert("Please upload at least one file before finishing the submission.");
@@ -149,6 +140,8 @@
           const fileQueue = new Array($datasetObj.files.length).fill().map((_, i) => i).reverse();
           let activeConnections = 0, threadsQuantity = 10;
           sendNextFile();
+
+          sendSuccessNotification();
 
           function sendNextFile() {
               if (activeConnections >= threadsQuantity) {
@@ -231,21 +224,25 @@
         }
     }
 
+    function sendSuccessNotification() {
+        alert("All files have been successfully uploaded and your submission is complete. Thank you!");
+    }
+
 </script>
 
 {#if steps.length > 0}
 
-<section class="border border-neutral-300 rounded-lg p-4 mb-8">
+<section class="border border-base-300 rounded-lg p-4 mb-8">
 
     <h2 class="text-2xl font-bold">Step {$currentStep+1} of {steps.length}</h2>
-    <p class="font-semibold text-neutral-500 m-2">{steps[$currentStep].title}</p>
+    <p class="font-semibold text-neutral m-2">{steps[$currentStep].title}</p>
 
     <div class="p-0">
-        <div onkeypress={handleKeypress} role="button" tabindex="0" aria-pressed="false">
+        <div>
             {#key $currentStep}
                 {#if steps[$currentStep].text}
                     {#each steps[$currentStep].text as paragraph}
-                    <p class="mx-4 text-neutral-600 text-sm">{paragraph}</p>
+                    <p class="mx-4 text-neutral text-sm">{paragraph}</p>
                     {/each}
                 {/if}
 
