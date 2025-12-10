@@ -47,6 +47,8 @@ function updateValue(selectedOptions: [{label: String, iri: String, ontology_nam
     <fieldset class="fieldset">
         {#if showLabel}
         <legend class="fieldset-legend">{label}</legend>
+        {/if}
+        {#if value.length > 0}
         <ul class="py-4 px-2">
             {#each value as subject, i}
                 <li class="flex justify-between p-1 hover:bg-base-300">
