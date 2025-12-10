@@ -70,15 +70,15 @@
 
 <div class="navbar bg-base-100 shadow-sm w-full">
   <div class="navbar-start gap-2">
-    <details class="dropdown">
-        <summary class="btn m-1 btn-square btn-ghost" aria-label="Menu">
+    <div class="dropdown">
+        <div tabindex="0" role="button" class="btn m-1 btn-square btn-ghost" aria-label="Menu">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-5 w-5 stroke-current"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path> </svg>
-        </summary>
-        <ul class="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+        </div>
+        <ul tabindex="-1" class="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
             <li><a href="/submit">Submission</a></li>
             <li><a href="/search">Search</a></li>
         </ul>
-    </details>
+    </div>
     <a href="/" class="" aria-label="edal-logo">
         <img src={logo} class="select-none" alt="e!DAL Logo"/>
     </a>
@@ -90,11 +90,11 @@
     {#if accesToken}
     <span>Hi, {username}</span>
     {/if}
-    <details class="dropdown dropdown-end">
-        <summary class="btn m-1 btn-square btn-ghost" aria-label="Menu">
+    <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn m-1 btn-square btn-ghost" aria-label="Menu">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-10 w-10 stroke-current"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path> </svg>
-        </summary>
-        <ul class="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+        </div>
+        <ul tabindex="-1" class="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
             {#if accesToken}
             <li><a href="/profile">Profile</a></li>
             <li><a href="/settings">Settings</a></li>
@@ -103,7 +103,7 @@
             <li><button onclick={login}>Login</button></li>
             {/if}
         </ul>
-    </details>
+    </div>
   </div>
 </div>
 <div>
