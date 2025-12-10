@@ -118,8 +118,6 @@
         }
     }
 
-    let validated;
-
     let index = 0;
     let fileId = $state(0);
 
@@ -221,16 +219,30 @@
           }).catch((err) => {
               console.error("Error submitting S3 info:", err);
           });
+
+            sendSuccessNotification();
         }
     }
 
     function sendSuccessNotification() {
-        alert("All files have been successfully uploaded and your submission is complete. Thank you!");
+        const toast = document.getElementById('toast');
+        if (toast) {
+            toast.removeAttribute('hidden');
+            setTimeout(() => {
+                toast.setAttribute('hidden', 'true');
+            }, 5000);
+        }
     }
 
 </script>
 
 {#if steps.length > 0}
+
+<div id="toast" hidden class="toast toast-top mt-24 toast-end z-10">
+  <div class="alert alert-success">
+    <span>Submission sent successfully.</span>
+  </div>
+</div>
 
 <section class="border border-base-300 rounded-lg p-4 mb-8">
 
