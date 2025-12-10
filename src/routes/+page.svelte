@@ -1,5 +1,14 @@
 <script>
+	import { goto } from '$app/navigation';
 	import logo from '$lib/assets/favicon.png';
+	import { generateCodeChallenge, generateCodeVerifier, performLogin } from '$lib/js/oidc';
+
+	async function login() {
+		let verifier = generateCodeVerifier();
+		localStorage.setItem('code_verifier', verifier);
+		let challenge = await generateCodeChallenge(verifier);
+		performLogin(challenge);
+	}
 	
 </script>
 
@@ -81,7 +90,7 @@
 	<section id="get-started" class="mt-7">
 		<h3 class="mb-3 text-lg font-semibold">How it works</h3>
 		<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-			<article class="card rounded-lg bg-base-100 p-4 shadow">
+			<button onclick={login} class="card rounded-lg bg-base-100 p-4 shadow text-left hover:shadow-lg hover:cursor-pointer">
 				<div
 					class="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-secondary font-bold text-secondary-content"
 				>
@@ -91,9 +100,9 @@
 				<p class="text-sm text-base-content opacity-70">
 					Sign in using LS Login for secure, trusted access control.
 				</p>
-			</article>
+			</button>
 
-			<article class="card rounded-lg bg-base-100 p-4 shadow">
+			<button onclick={()=>goto("/submit")} class="card rounded-lg bg-base-100 p-4 shadow text-left hover:shadow-lg hover:cursor-pointer">
 				<div
 					class="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-secondary font-bold text-secondary-content"
 				>
@@ -103,9 +112,9 @@
 				<p class="text-sm text-base-content opacity-70">
 					Upload your dataset, provide rich metadata, and prepare it for publication.
 				</p>
-			</article>
+			</button>
 
-			<article class="card rounded-lg bg-base-100 p-4 shadow">
+			<button onclick={()=>goto("/search")} class="card rounded-lg bg-base-100 p-4 shadow text-left hover:shadow-lg hover:cursor-pointer">
 				<div
 					class="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-secondary font-bold text-secondary-content"
 				>
@@ -115,7 +124,7 @@
 				<p class="text-sm text-base-content opacity-70">
 					Your dataset is assigned a DOI and publicly accessible for the research community.
 				</p>
-			</article>
+			</button>
 		</div>
 	</section>
 </section>
