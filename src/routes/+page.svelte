@@ -11,14 +11,12 @@
 		performLogin(challenge);
 	}
 
-	let kpiStats = [];
+	let kpiStats = {};
 
 	onMount(async () => {
 		const response = await fetch('/')
 		if (response.ok) {
-			const data = await response.json();
-			console.log('Server response:', data);
-			kpiStats = data.result;
+			kpiStats = await response.json();
 		} else {
 			console.error('Server error:', response.statusText);
 		}
@@ -80,20 +78,30 @@
 					<div class="flex items-center gap-2 text-sm">
 						<div class="flex flex-col items-end">
 							<div class="mb-1 flex items-center gap-2">
-								<span class="h-2 w-2 rounded-full {kpiStats.length===0?'bg-warning':'bg-success'} shadow-sm"></span> 
-								<span>{kpiStats.length===0 ? 'Loading...' : 'Up to date'}</span>
+								{#if kpiStats.result}
+								<span class="h-2 w-2 rounded-full bg-success shadow-sm"></span> 
+								<span>Up to date</span>
+								{:else if kpiStats.detail}
+								<span class="h-2 w-2 rounded-full bg-error shadow-sm"></span> 
+								<span>{kpiStats.detail}</span>
+								{:else}
+								<span class="h-2 w-2 rounded-full bg-warning shadow-sm"></span> 
+								<span>Loading...</span>
+								{/if}
 							</div>
 							<span class="italic text-xs">Powered by Scorpion</span>
 						</div>
 					</div>
 				</div>
 				<div class="stats stats-vertical text-neutral">
-					{#each kpiStats as kpiStat}
+					{#if kpiStats.result}
+					{#each kpiStats.result as kpiStat}
 					<div class="stat">
 						<div class="stat-title">{kpiStat.kpi}</div>
 						<div class="stat-value">{Intl.NumberFormat().format(kpiStat.value)}</div>
 					</div>	
 					{/each}
+					{/if}
 				</div>
 			</div>
 		</div>
