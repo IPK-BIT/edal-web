@@ -22,6 +22,10 @@
     "secretKey": {
       "description": "S3 secret access key",
       "type": "string"  
+    },
+    "validated": {
+      "description": "Indicates whether the connection details have been validated",
+      "type": "boolean"
     }
   }
 }

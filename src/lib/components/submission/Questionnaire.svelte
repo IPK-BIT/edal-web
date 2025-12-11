@@ -106,6 +106,33 @@
             }
         }
 
+        // Additional validation for Files step
+        if (step.component === "files") {
+            if ($datasetObj.file_transfer_mode === "local") {
+                //@ts-ignore
+                if (Object.keys($datasetObj.files).length === 0) {
+                    alert("Please upload at least one file before proceeding.");
+                    return;
+                }
+            } else if ($datasetObj.file_transfer_mode === "s3") {
+                const s3 = $datasetObj.s3access || {};
+                const missing = [];
+                if (!s3.endpoint || s3.endpoint.trim() === "") missing.push("S3 Endpoint URL");
+                if (!s3.bucket || s3.bucket.trim() === "") missing.push("Bucket Name");
+                if (!s3.region || s3.region.trim() === "") missing.push("Region Name");
+                if (!s3.accessKey || s3.accessKey.trim() === "") missing.push("Access Key");
+                if (!s3.secretKey || s3.secretKey.trim() === "") missing.push("Secret Key");
+                if (missing.length > 0) {
+                    alert("Please fill out the following S3 field(s):\n" + missing.join(", "));
+                    return;
+                }
+                if (!s3.validated) {
+                    alert("Please validate the S3 connection before proceeding.");
+                    return;
+                }
+            }
+        }
+
         if ($currentStep < steps.length - 1) {
             $currentStep += 1;
             executeHook($currentStep);
@@ -208,7 +235,7 @@
                   formData.append(key, value);
               }
           }
-          fetch(`${base_url}/upload/s3`, {
+          fetch(`${base_url}/upload/s3upload`, {
               method: 'POST',
               body: formData,
               headers: {
