@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import logo from '$lib/assets/favicon.png';
 	import { generateCodeChallenge, generateCodeVerifier, performLogin } from '$lib/js/oidc';
+	import { onMount } from 'svelte';
 
 	async function login() {
 		let verifier = generateCodeVerifier();
@@ -9,6 +10,19 @@
 		let challenge = await generateCodeChallenge(verifier);
 		performLogin(challenge);
 	}
+
+	let kpiStats = [];
+
+	onMount(async () => {
+		const response = await fetch('/')
+		if (response.ok) {
+			const data = await response.json();
+			console.log('Server response:', data);
+			kpiStats = data.result;
+		} else {
+			console.error('Server error:', response.statusText);
+		}
+	});
 	
 </script>
 
@@ -59,29 +73,27 @@
 
 		<div class="w-96" aria-hidden="true">
 			<div class="card rounded-lg bg-base-100 p-4 shadow">
-				<div class="mb-3 flex items-center justify-between">
+				<div class="flex items-center justify-between">
 					<div>
-						<strong>Statistics</strong>
+						<strong>Statistics ({new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' }).format((() => { const d = new Date(); d.setMonth(d.getMonth() - 1); return d; })())})</strong>
 					</div>
 					<div class="flex items-center gap-2 text-sm">
-						<span class="h-2 w-2 rounded-full bg-primary shadow-sm"></span> online
+						<div class="flex flex-col items-end">
+							<div class="mb-1 flex items-center gap-2">
+								<span class="h-2 w-2 rounded-full {kpiStats.length===0?'bg-warning':'bg-success'} shadow-sm"></span> 
+								<span>{kpiStats.length===0 ? 'Loading...' : 'Up to date'}</span>
+							</div>
+							<span class="italic text-xs">Powered by Scorpion</span>
+						</div>
 					</div>
 				</div>
 				<div class="stats stats-vertical text-neutral">
+					{#each kpiStats as kpiStat}
 					<div class="stat">
-						<div class="stat-title">Datasets published</div>
-						<div class="stat-value">327</div>
-					</div>
-
-					<div class="stat">
-						<div class="stat-title">Data volume</div>
-						<div class="stat-value">3.2 PB</div>
-					</div>
-
-					<div class="stat">
-						<div class="stat-title">Distinct download IPs</div>
-						<div class="stat-value">692,760</div>
-					</div>
+						<div class="stat-title">{kpiStat.kpi}</div>
+						<div class="stat-value">{Intl.NumberFormat().format(kpiStat.value)}</div>
+					</div>	
+					{/each}
 				</div>
 			</div>
 		</div>
