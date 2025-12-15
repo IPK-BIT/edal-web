@@ -56,12 +56,26 @@
         return path.split('.').reduce((o, k) => (o && o[k] !== undefined ? o[k] : undefined), obj);
     }
 
-    function next() {
+    async function next() {
         // Validate required fields for the current step
         const step = steps[$currentStep];
         if (step.fields) {
             const missing = [];
             for (const field of step.fields) {
+                if (field.mapping.jsonPath === 'metadata.title') {
+                    console.log("Validating title field:", getValueByPath($datasetObj, field.mapping.jsonPath));
+                    const response = await fetch(`https://dmz-web-169.ipk-gatersleben.de/submission/info/exists?title=${encodeURIComponent(getValueByPath($datasetObj, field.mapping.jsonPath))}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                        }
+                    });
+                    if(response.status === 200) {
+                        alert("A dataset with this title already exists. Please choose a different title.");
+                        return;
+                    }
+                }
                 if (field.required) {
                     const value = getValueByPath($datasetObj, field.mapping.jsonPath);
                     if (
