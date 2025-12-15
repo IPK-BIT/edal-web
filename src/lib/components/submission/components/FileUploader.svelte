@@ -4,7 +4,38 @@
 
   function readFiles(evt: Event) {
     //@ts-ignore
-    value = evt.target ? evt.target.files : {};
+    value = {};
+    let tmp = evt.target ? evt.target.files : {};
+    for (let i = 0; i < tmp.length; i++) {
+      safeAddFile(tmp[i]);
+    }
+    value = value;
+  }
+
+  function safeAddFile(file: File) {
+    // Skip hidden files
+    if (file.name.startsWith('.')) {
+      return;
+    }
+    // Skip temporary files
+    if (file.name.endsWith('~') || file.name.endsWith('.swp')) {
+      return;
+    }
+    // Skip files in hidden directories
+    let pathParts = file.webkitRelativePath.split('/');
+    for (let part of pathParts) {
+      if (part.startsWith('.')) {
+        return;
+      }
+    }
+    // Skip compression files
+    const compressionExtensions = ['.zip', '.tar', '.gz', '.bz2', '.7z', '.xz'];
+    for (let ext of compressionExtensions) {
+      if (file.name.endsWith(ext)) {
+        return;
+      }
+    }
+    value[Object.keys(value).length] = file;
   }
 
   function setAttributeWebkitdirectory(node: any) {
@@ -23,7 +54,7 @@
         hidden
         use:setAttributeWebkitdirectory
         multiple
-        on:change={(evt) => {
+        onchange={(evt) => {
           readFiles(evt);
         }}
       />
@@ -41,36 +72,47 @@
                 <th>Relative Path</th>
                 <th>Type</th>
                 <th class="text-right pr-4">Size</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
-              {#each value as file, i}
-                <tr>
+              {#each Object.keys(value) as key, i}
+                <tr class="{value[key].size===0?'bg-warning/50':''}">
                   <td class="pl-4">
                     <div class="flex items-center gap-3">
                       <div>
-                        <div class="font-medium">{file.name}</div>
+                        <div class="font-medium">{value[key].name}</div> 
                       </div>
                     </div>
                   </td>
-                  <td class="max-w-xs truncate">{file.webkitRelativePath || file.name}</td>
+                  <td class="max-w-xs truncate">{value[key].webkitRelativePath || value[key].name}</td>
                   <td>
-                    {#if file.type}
-                      {file.type}
+                    {#if value[key].type}
+                      {value[key].type}
                     {:else}
                       unknown
                     {/if}
                   </td>
                   <td class="text-right pr-4 text-sm text-muted">
-                    {#if file.size < 1024}
-                      {file.size} B
-                    {:else if file.size < 1048576}
-                      {(file.size / 1024).toFixed(2)} KB
-                    {:else if file.size < 1073741824}
-                      {(file.size / 1048576).toFixed(2)} MB
+                    {#if value[key].size < 1024}
+                      {value[key].size} B
+                    {:else if value[key].size < 1048576}
+                      {(value[key].size / 1024).toFixed(2)} KB
+                    {:else if value[key].size < 1073741824}
+                      {(value[key].size / 1048576).toFixed(2)} MB
                     {:else}
-                      {(file.size / 1073741824).toFixed(2)} GB
+                      {(value[key].size / 1073741824).toFixed(2)} GB
                     {/if}
+                  </td>
+                  <td class="pr-4 text-right">
+                    <button aria-label="remove file" class="btn btn-xs btn-circle btn-ghost" onclick={() => {
+                      delete value[key];
+                      value = value;
+                    }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
                   </td>
                 </tr>
               {/each}
