@@ -24,6 +24,15 @@
             e!DAL - Plant Genomics and Phenomics Research Data Repository (PGP), IPK Gatersleben;
             Seeland OT Gatersleben, Corrensstraße 3; 06466; Germany
         </div>
+        <div class="mt-2">
+            {#if $datasetObj.file_transfer_mode === 'local'}
+                <span class="badge badge-secondary">Local File Upload</span>
+                <span>number of files: {Object.keys($datasetObj.files).length}</span>
+            {:else if $datasetObj.file_transfer_mode === 's3'}
+                <span class="badge badge-accent">S3 Transfer</span>
+                <span class="">{$datasetObj.s3access.validationMsg}</span>
+            {/if}
+        </div>
     </div>
 </div>
  

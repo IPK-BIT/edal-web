@@ -23,9 +23,11 @@
     if (response.status === 200) {
       responseText = await response.text();
       value.validated = true;
+      value.validationMsg = responseText;
     } else {
       responseText = `Connection test failed with status ${response.status}`;
       value.validated = false;
+      value.validationMsg = responseText;
     }
   }
 

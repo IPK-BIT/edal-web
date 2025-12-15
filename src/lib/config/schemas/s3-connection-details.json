@@ -26,6 +26,10 @@
     "validated": {
       "description": "Indicates whether the connection details have been validated",
       "type": "boolean"
+    },
+    "validationMsg": {
+      "description": "Message regarding the validation status",
+      "type": "string"
     }
   }
 }
