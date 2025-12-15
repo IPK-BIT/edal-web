@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Svelecte from "svelecte";
 	import { onMount } from "svelte";
+    import orcidLogo from '$lib/assets/orcid.logo.icon.svg';
 
     onMount(()=>{
         if (!person.orcid) {
@@ -218,19 +219,24 @@
         </button>
     </div>
     {:else}
-    <div class="flex">
-        <div class="w-full flex flex-col space-y-2">
-            <span>{person.role ? `Role: ${person.role}` : ''}</span>
-            <span>{person.firstName} {person.lastName} {person.orcid ? `(ORCID: ${person.orcid})` : ''}</span>
-            <span>{person.address ? `Address: ${person.address}` : ''}</span>
-            <span>{person.zipCode ? `Zip Code: ${person.zipCode}` : ''}</span>
-            <span>{person.country ? `Country: ${person.country}` : ''}</span>
-        </div>
-        <div class="flex flex-col">
-            <button class="btn btn-sm btn-info mt-2" onclick={() => editMode = true}>
+    <div class="flex items-center">
+        <span class="badge {person.role === 'Creator' ? 'badge-primary' : person.role === 'Contributor' ? 'badge-secondary' : 'badge-accent'} mr-2">
+            {person.role}
+        </span>
+        <span class="font-bold">{person.firstName} {person.lastName}</span>
+        {#if person.orcid}
+            <a class="ml-1 text-sm text-blue-600 hover:underline" href={"https://orcid.org/" + person.orcid} target="_blank" rel="noopener noreferrer">
+                <img src={orcidLogo} alt="ORCID Logo" class="inline h-4 w-4"/>
+            </a>
+        {/if}
+        {#if person.affiliation}
+            <span class="ml-2 italic text-sm">{person.affiliation}</span>
+        {/if}
+        <div class="ml-auto flex space-x-2">
+            <button class="btn btn-sm btn-info" onclick={() => editMode = true}>
                 Edit
             </button>
-            <button class="btn btn-sm btn-error mt-2" onclick={() => onremovePerson()}>
+            <button class="btn btn-sm btn-error" onclick={() => onremovePerson()}>
                 Remove
             </button>
         </div>
