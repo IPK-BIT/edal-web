@@ -51,10 +51,12 @@
 		}
 	}
 
-		function getValueByPath(obj: unknown, path: string) {
-			// path: "metadata.title" etc
-			return path.split('.').reduce((o: any, k: string) => (o && o[k] !== undefined ? o[k] : undefined), obj as any);
-		}
+	function getValueByPath(obj: unknown, path: string) {
+		// path: "metadata.title" etc
+		return path
+			.split('.')
+			.reduce((o: any, k: string) => (o && o[k] !== undefined ? o[k] : undefined), obj as any);
+	}
 
 	async function next() {
 		// Validate required fields for the current step

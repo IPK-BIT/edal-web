@@ -1,13 +1,14 @@
 <script context="module" lang="ts">
 	export type OntoOption = { label: string; iri: string; ontology_name: string; type: string };
 </script>
+
 <script lang="ts">
 	import { onMount } from 'svelte';
 
 	export let label: string = '';
 	export let showLabel: boolean = true;
 	export let api: string = 'https://api.terminology.tib.eu/api/';
-    
+
 	export let selectionChangedEvent: (selectedOptions: OntoOption[]) => void = (selectedOptions) => {
 		console.log(selectedOptions);
 	};
