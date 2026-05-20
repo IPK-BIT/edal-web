@@ -51,11 +51,10 @@
 		}
 	}
 
-	function getValueByPath(obj: unknown, path: string) {
-		// path: "metadata.title" etc
-		// @ts-expect-error we want to access nested properties dynamically
-		return path.split('.').reduce((o, k) => (o && o[k] !== undefined ? o[k] : undefined), obj);
-	}
+		function getValueByPath(obj: unknown, path: string) {
+			// path: "metadata.title" etc
+			return path.split('.').reduce((o: any, k: string) => (o && o[k] !== undefined ? o[k] : undefined), obj as any);
+		}
 
 	async function next() {
 		// Validate required fields for the current step
@@ -65,7 +64,6 @@
 			for (const field of step.fields) {
 				if (field.mapping.jsonPath === 'metadata.title') {
 					const response = await fetch(
-						// @ts-expect-error datasetObj is defined and has the necessary structure
 						`https://dmz-web-169.ipk-gatersleben.de/submission/info/exists?title=${encodeURIComponent(getValueByPath($datasetObj, field.mapping.jsonPath))}`,
 						{
 							method: 'GET',
@@ -98,7 +96,6 @@
 		}
 		// Additional validation for authors step
 		if (step.jsonPath === 'metadata.authors') {
-			// @ts-expect-error metadata is defined
 			const authors = $datasetObj.metadata?.authors || [];
 			const hasCreator = authors.some((author: { role: string }) => author.role === 'Creator');
 			if (!hasCreator) {
@@ -121,7 +118,6 @@
 
 		// Additional validation for DLA step
 		if (step.jsonPath === 'dlaRead') {
-			// @ts-expect-error dlaRead is defined for DLA step
 			if (!$datasetObj.dlaRead) {
 				alert(
 					'You must read the Data Deposition and License Agreement (DDLA) prior to proceeding.'
@@ -132,16 +128,12 @@
 
 		// Additional validation for Files step
 		if (step.component === 'files') {
-			// @ts-expect-error file_transfer_mode is defined
 			if ($datasetObj.file_transfer_mode === 'local') {
-				//@ts-expect-error files is defined when file_transfer_mode is local
 				if (Object.keys($datasetObj.files).length === 0) {
 					alert('Please upload at least one file before proceeding.');
 					return;
 				}
-				// @ts-expect-error file_transfer_mode is defined
 			} else if ($datasetObj.file_transfer_mode === 's3') {
-				// @ts-expect-error s3access is defined when file_transfer_mode is s3
 				const s3 = $datasetObj.s3access || {};
 				const missing = [];
 				if (!s3.endpoint || s3.endpoint.trim() === '') missing.push('S3 Endpoint URL');
@@ -186,15 +178,12 @@
 
 		let access_token = localStorage.getItem('access_token');
 
-		// @ts-expect-error file_transfer_mode is defined
 		if ($datasetObj.file_transfer_mode === 'local') {
-			//@ts-expect-error files is defined
 			if (Object.keys($datasetObj.files).length === 0) {
 				alert('Please upload at least one file before finishing the submission.');
 				return;
 			}
 			const fileQueue = Array.from(
-				//@ts-expect-error files is defined
 				{ length: Object.keys($datasetObj.files).length },
 				(_, i) => i
 			).reverse();
@@ -215,7 +204,6 @@
 								'Content-Type': 'application/json'
 							},
 							body: JSON.stringify({
-								// @ts-expect-error metadata is defined
 								title: $datasetObj.metadata.title
 							})
 						})
@@ -234,13 +222,12 @@
 					return;
 				}
 				fileId = fileQueue.pop()!;
-				//@ts-expect-error files is defined
 				const file = $datasetObj.files[fileId];
 				let formData = new FormData();
 				formData.set('file', file, file.name);
 
 				let metadata = JSON.parse(JSON.stringify($datasetObj.metadata));
-				metadata.authors.forEach((author) => {
+				metadata.authors.forEach((author: any) => {
 					author.address = `${author.affiliation}, ${author.city}, ${author.address}`;
 					delete author.affiliation;
 					delete author.city;
@@ -249,7 +236,6 @@
 				formData.set('metaData', JSON.stringify(metadata));
 
 				let pathArr = file.webkitRelativePath.split('/');
-				//@ts-expect-error metadata title is defined
 				pathArr[0] = $datasetObj.metadata.title;
 				let path = pathArr.slice(0, -1).join('/');
 				formData.set('path', path);
@@ -273,9 +259,7 @@
 						fileQueue.push(fileId);
 					});
 			}
-			// @ts-expect-error file_transfer_mode is defined
 		} else if ($datasetObj.file_transfer_mode == 's3') {
-			// @ts-expect-error s3access is defined when file_transfer_mode is s3
 			const s3 = $datasetObj.s3access || {};
 			const missing = [];
 			if (!s3.endpoint || s3.endpoint.trim() === '') missing.push('S3 Endpoint URL');
@@ -290,7 +274,6 @@
 			// let base_url = 'http://localhost:8000';
 			let formData = new FormData();
 			// for (const key in $datasetObj) {
-			// 	// @ts-expect-error datasetObj is defined
 			// 	let value = $datasetObj[key];
 			// 	if (typeof value === 'object') {
 			// 		formData.append(key, JSON.stringify(value));
@@ -300,7 +283,7 @@
 			// }
 			formData.append('s3access', JSON.stringify($datasetObj.s3access));
 			let metadata = JSON.parse(JSON.stringify($datasetObj.metadata));
-			metadata.authors.forEach((author) => {
+			metadata.authors.forEach((author: any) => {
 				author.address = `${author.affiliation}, ${author.city}, ${author.address}`;
 				delete author.affiliation;
 				delete author.city;

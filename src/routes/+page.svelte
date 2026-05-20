@@ -1,18 +1,19 @@
-<script>
+<script lang="ts">
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import logo from '$lib/assets/favicon.png';
 	import { generateCodeChallenge, generateCodeVerifier, performLogin } from '$lib/js/oidc';
 	import { onMount } from 'svelte';
 
-	async function login() {
-		let verifier = generateCodeVerifier();
+	async function login(): Promise<void> {
+		const verifier = generateCodeVerifier();
 		localStorage.setItem('code_verifier', verifier);
-		let challenge = await generateCodeChallenge(verifier);
+		const challenge = await generateCodeChallenge(verifier);
 		performLogin(challenge);
 	}
 
-	let kpiStats = {};
+	type KpiStat = { kpi: string; value: number };
+	let kpiStats: { result?: KpiStat[]; detail?: string } = {};
 
 	onMount(async () => {
 		const response = await fetch('/');

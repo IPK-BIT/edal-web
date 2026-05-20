@@ -2,10 +2,10 @@ import { writable, get, derived } from 'svelte/store';
 import { keyed } from '@humanspeak/svelte-keyed';
 
 function createDatasetStoresSynced() {
-	const storeDatasetObj = writable({});
-	const storeDatasetStr = writable('');
+	const storeDatasetObj = writable<Record<string, any>>({});
+	const storeDatasetStr = writable<string>('');
 
-	const setDatasetObj = (DatasetObj: any) => {
+	const setDatasetObj = (DatasetObj: Record<string, any>) => {
 		storeDatasetObj.set(DatasetObj);
 		storeDatasetStr.set(JSON.stringify(DatasetObj, null, 2));
 	};

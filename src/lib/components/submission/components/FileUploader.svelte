@@ -1,14 +1,14 @@
 <script lang="ts">
-	export let value: File[] = [];
+	export let value: Record<string, File> = {};
 
 	function readFiles(evt: Event) {
-		//@ts-ignore
+		const input = evt.target as HTMLInputElement | null;
 		value = {};
-		let tmp = evt.target ? evt.target.files : {};
+		const tmp = input?.files ?? null;
+		if (!tmp) return;
 		for (let i = 0; i < tmp.length; i++) {
 			safeAddFile(tmp[i]);
 		}
-		value = value;
 	}
 
 	function safeAddFile(file: File) {
@@ -34,7 +34,7 @@
 				return;
 			}
 		}
-		value[Object.keys(value).length] = file;
+		value[Object.keys(value).length.toString()] = file;
 	}
 
 	function setAttributeWebkitdirectory(node: any) {

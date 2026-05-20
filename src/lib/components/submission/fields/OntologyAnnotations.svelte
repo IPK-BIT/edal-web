@@ -1,51 +1,49 @@
+<script context="module" lang="ts">
+	export type OntoOption = { label: string; iri: string; ontology_name: string; type: string };
+</script>
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	let {
-		label = '',
-		showLabel = true,
-		api = 'https://api.terminology.tib.eu/api/',
-		query = '*',
-		selectionChangedEvent = (selectedOptions: {
-			label: String;
-			iri: String;
-			ontology_name: String;
-			type: string;
-		}) => {
-			console.log(selectedOptions);
-		},
-		parameter = 'collection=DataPLANT',
-		className = undefined,
-		value = $bindable()
-	} = $props();
+	export let label: string = '';
+	export let showLabel: boolean = true;
+	export let api: string = 'https://api.terminology.tib.eu/api/';
+    
+	export let selectionChangedEvent: (selectedOptions: OntoOption[]) => void = (selectedOptions) => {
+		console.log(selectedOptions);
+	};
+	export let parameter: string = 'collection=DataPLANT';
+	export let className: string | undefined = undefined;
+	export let value: string[] = [];
 
 	onMount(() => {
-		//@ts-ignore
-		window['ts4nfdiWidgets'].createAutocomplete(
-			{
-				api: api,
-				parameter: parameter,
-				selectionChangedEvent: updateValue,
-				preselected: [],
-				placeholder: 'Type to search...',
-				hasShortSelectedLabel: true,
-				allowCustomTerms: true,
-				singleSelection: true,
-				ts4nfdiGateway: false,
-				singleSuggestionRow: false,
-				showApiSource: true,
-				className: className,
-				initialSearchQuery: 'undefined'
-			},
-			document.querySelector('#autocomplete_widget_container_24')
-		);
+		// widget injected at runtime by external script
+		const win = window as any;
+		if (win && win.ts4nfdiWidgets && typeof win.ts4nfdiWidgets.createAutocomplete === 'function') {
+			win.ts4nfdiWidgets.createAutocomplete(
+				{
+					api: api,
+					parameter: parameter,
+					selectionChangedEvent: updateValue,
+					preselected: [],
+					placeholder: 'Type to search...',
+					hasShortSelectedLabel: true,
+					allowCustomTerms: true,
+					singleSelection: true,
+					ts4nfdiGateway: false,
+					singleSuggestionRow: false,
+					showApiSource: true,
+					className: className,
+					initialSearchQuery: 'undefined'
+				},
+				document.querySelector('#autocomplete_widget_container_24')
+			);
+		}
 	});
 
-	function updateValue(
-		selectedOptions: [{ label: String; iri: String; ontology_name: String; type: string }]
-	) {
+	function updateValue(selectedOptions: OntoOption[]) {
 		if (selectedOptions.length > 0) {
 			value = [...value, selectedOptions[0].label];
+			selectionChangedEvent(selectedOptions);
 		}
 	}
 </script>
