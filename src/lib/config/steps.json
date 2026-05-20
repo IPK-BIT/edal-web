@@ -1,114 +1,120 @@
 [
-    {
-        "shortTitle": "DLA",
-        "title": "Data Deposition and License Agreement",
-        "text": [
-            "Please read and accept the Data Deposition and License Agreement (DDLA) before proceeding with the submission of your dataset.",
-            "By accepting the DDLA, you agree to comply with the terms and conditions outlined in the agreement regarding the use, distribution, and licensing of your dataset."
-        ],
-        "component": "dla",
-        "jsonPath": "dlaRead"
-    },
-    {
-        "hooks": [
-            {
-                "type": "metadata",
-                "state": {
-                    "mapping": "metadata",
-                    "count": 1
-                }
-            }
-        ],
-        "shortTitle": "Basic Information",
-        "title": "Please provide basic information on the dataset",
-        "text": [
-            "Fill in the title and description of your dataset. Make sure to provide a clear and concise description to help others understand the content and purpose of your dataset.",
-            "Select an appropriate license for your dataset to specify how others can use it."
-        ],
-        "fields": [
-            {
-                "type": "string",
-                "label": "Dataset Title",
-                "required": true,
-                "mapping": {
-                    "jsonPath": "metadata.title"
-                }
-            },
-            {
-                "type": "textarea",
-                "label": "Description",
-                "required": true,
-                "mapping": {
-                    "jsonPath": "metadata.description"
-                }
-            },
-            {
-                "type": "license",
-                "label": "License",
-                "required": true,
-                "mapping": {
-                    "jsonPath": "metadata.license"
-                }
-            }
-        ]
-    },
-    {
-        "shortTitle": "Subjects",
-        "title": "Please describe your dataset",
-        "text": [
-            "Supply relevant subjects or keywords that describe the content of your dataset.",
-            "This will help others find your dataset when searching for related topics."
-        ],
-        "fields": [
-            {
-                "type": "onto-autocomplete",
-                "label": "Subjects",
-                "required": false,
-                "mapping": {
-                    "jsonPath": "metadata.subjects"
-                }
-            }
-        ]
-    },
-    {
-        "shortTitle": "Authors",
-        "title": "Please provide information on the authors of the dataset",
-        "text": [
-            "Add the names and affiliations of the authors who contributed to the dataset.",
-            "You need to specify at least one author with the creator role."
-        ],
-        "component": "people",
-        "componentConfig": {
-            "allowedRoles": [
-                { "label": "Creator", "value": "Creator", "tooltip": "The primary individual responsible for creating the dataset." },
-                { "label": "Contributor", "value": "Contributor", "tooltip": "An individual who contributed to the dataset but is not the primary creator." }
-            ]
-        },
-        "jsonPath": "metadata.authors"
-    },
-    {
-        "shortTitle": "Files",
-        "title": "Please upload the files of the dataset",
-        "text": [
-            "Upload the files that make up your dataset. You can add multiple files as needed."
-        ],
-        "component": "files",
-        "componentConfig": {
-            "options": [
-                { "label": "Local file upload", "value": "local", "jsonPath": "files" },
-                { "label": "S3 Access", "value": "s3", "jsonPath": "s3access" }
-            ]
-        },
-        "jsonPath": "file_transfer_mode"
-    },
-    {
-        "shortTitle": "Preview",
-        "title": "Please review and submit your dataset",
-        "text": [
-            "Review the information and files you have provided for your dataset.",
-            "If everything looks good, you can submit your dataset for deposition."
-        ],
-        "component": "preview",
-        "jsonPath": ""
-    }
+	{
+		"shortTitle": "DLA",
+		"title": "Data Deposition and License Agreement",
+		"text": [
+			"Please read and accept the Data Deposition and License Agreement (DDLA) before proceeding with the submission of your dataset.",
+			"By accepting the DDLA, you agree to comply with the terms and conditions outlined in the agreement regarding the use, distribution, and licensing of your dataset."
+		],
+		"component": "dla",
+		"jsonPath": "dlaRead"
+	},
+	{
+		"hooks": [
+			{
+				"type": "metadata",
+				"state": {
+					"mapping": "metadata",
+					"count": 1
+				}
+			}
+		],
+		"shortTitle": "Basic Information",
+		"title": "Please provide basic information on the dataset",
+		"text": [
+			"Fill in the title and description of your dataset. Make sure to provide a clear and concise description to help others understand the content and purpose of your dataset.",
+			"Select an appropriate license for your dataset to specify how others can use it."
+		],
+		"fields": [
+			{
+				"type": "string",
+				"label": "Dataset Title",
+				"required": true,
+				"mapping": {
+					"jsonPath": "metadata.title"
+				}
+			},
+			{
+				"type": "textarea",
+				"label": "Description",
+				"required": true,
+				"mapping": {
+					"jsonPath": "metadata.description"
+				}
+			},
+			{
+				"type": "license",
+				"label": "License",
+				"required": true,
+				"mapping": {
+					"jsonPath": "metadata.license"
+				}
+			}
+		]
+	},
+	{
+		"shortTitle": "Subjects",
+		"title": "Please describe your dataset",
+		"text": [
+			"Supply relevant subjects or keywords that describe the content of your dataset.",
+			"This will help others find your dataset when searching for related topics."
+		],
+		"fields": [
+			{
+				"type": "onto-autocomplete",
+				"label": "Subjects",
+				"required": false,
+				"mapping": {
+					"jsonPath": "metadata.subjects"
+				}
+			}
+		]
+	},
+	{
+		"shortTitle": "Authors",
+		"title": "Please provide information on the authors of the dataset",
+		"text": [
+			"Add the names and affiliations of the authors who contributed to the dataset.",
+			"You need to specify at least one author with the creator role."
+		],
+		"component": "people",
+		"componentConfig": {
+			"allowedRoles": [
+				{
+					"label": "Creator",
+					"value": "Creator",
+					"tooltip": "The primary individual responsible for creating the dataset."
+				},
+				{
+					"label": "Contributor",
+					"value": "Contributor",
+					"tooltip": "An individual who contributed to the dataset but is not the primary creator."
+				}
+			]
+		},
+		"jsonPath": "metadata.authors"
+	},
+	{
+		"shortTitle": "Files",
+		"title": "Please upload the files of the dataset",
+		"text": ["Upload the files that make up your dataset. You can add multiple files as needed."],
+		"component": "files",
+		"componentConfig": {
+			"options": [
+				{ "label": "Local file upload", "value": "local", "jsonPath": "files" },
+				{ "label": "S3 Access", "value": "s3", "jsonPath": "s3access" }
+			]
+		},
+		"jsonPath": "file_transfer_mode"
+	},
+	{
+		"shortTitle": "Preview",
+		"title": "Please review and submit your dataset",
+		"text": [
+			"Review the information and files you have provided for your dataset.",
+			"If everything looks good, you can submit your dataset for deposition."
+		],
+		"component": "preview",
+		"jsonPath": ""
+	}
 ]

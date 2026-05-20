@@ -1,24 +1,23 @@
 <script>
-export let component;
-export let field;
-export let jsonPath = undefined;
+	export let component;
+	export let field;
+	export let jsonPath = undefined;
 
-import { datasetObj } from "$lib/stores/dataset";
+	import { datasetObj } from '$lib/stores/dataset';
 
-let value;
+	let value;
 
-if (jsonPath && datasetObj.keyed) {
-    value = datasetObj.keyed(jsonPath);
-} 
-
+	if (jsonPath && datasetObj.keyed) {
+		value = datasetObj.keyed(jsonPath);
+	}
 </script>
 
-<svelte:component 
-    this={component} 
-    bind:value={$value} 
-    showLabel={true} 
-    label={field.label} 
-    mapping={field.mapping}
-    attr={field.explanation} 
-    componentConfig={field.componentConfig}
+<svelte:component
+	this={component}
+	bind:value={$value}
+	showLabel={true}
+	label={field.label}
+	mapping={field.mapping}
+	attr={field.explanation}
+	componentConfig={field.componentConfig}
 />

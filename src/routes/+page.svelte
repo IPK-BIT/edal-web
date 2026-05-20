@@ -1,4 +1,5 @@
 <script>
+	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import logo from '$lib/assets/favicon.png';
 	import { generateCodeChallenge, generateCodeVerifier, performLogin } from '$lib/js/oidc';
@@ -14,14 +15,14 @@
 	let kpiStats = {};
 
 	onMount(async () => {
-		const response = await fetch('/')
+		const response = await fetch('/');
 		if (response.ok) {
 			kpiStats = await response.json();
+			console.log(kpiStats);
 		} else {
 			console.error('Server error:', response.statusText);
 		}
 	});
-	
 </script>
 
 <section class="mx-auto my-9 max-w-5xl p-6">
@@ -56,7 +57,11 @@
 			</p>
 
 			<div class="my-4 flex gap-3">
-				<a class="btn btn-primary" target="_blank" href="https://ipk-bit.github.io/edal-pgp-knowledgebase">Quick Tour</a>
+				<a
+					class="btn btn-primary"
+					target="_blank"
+					href="https://ipk-bit.github.io/edal-pgp-knowledgebase">Quick Tour</a
+				>
 			</div>
 
 			<ul class="grid gap-2 text-neutral">
@@ -73,34 +78,45 @@
 			<div class="card rounded-lg bg-base-100 p-4 shadow">
 				<div class="flex items-center justify-between">
 					<div>
-						<strong>Statistics ({new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' }).format((() => { const d = new Date(); d.setMonth(d.getMonth() - 1); return d; })())})</strong>
+						<strong
+							>Statistics ({new Intl.DateTimeFormat('en', {
+								month: 'long',
+								year: 'numeric'
+							}).format(
+								(() => {
+									const d = new Date();
+									d.setMonth(d.getMonth() - 1);
+									return d;
+								})()
+							)})</strong
+						>
 					</div>
 					<div class="flex items-center gap-2 text-sm">
 						<div class="flex flex-col items-end">
 							<div class="mb-1 flex items-center gap-2">
 								{#if kpiStats.result}
-								<span class="h-2 w-2 rounded-full bg-success shadow-sm"></span> 
-								<span>Up to date</span>
+									<span class="h-2 w-2 rounded-full bg-success shadow-sm"></span>
+									<span>Up to date</span>
 								{:else if kpiStats.detail}
-								<span class="h-2 w-2 rounded-full bg-error shadow-sm"></span> 
-								<span>{kpiStats.detail}</span>
+									<span class="h-2 w-2 rounded-full bg-error shadow-sm"></span>
+									<span>{kpiStats.detail}</span>
 								{:else}
-								<span class="h-2 w-2 rounded-full bg-warning shadow-sm"></span> 
-								<span>Loading...</span>
+									<span class="h-2 w-2 rounded-full bg-warning shadow-sm"></span>
+									<span>Loading...</span>
 								{/if}
 							</div>
-							<span class="italic text-xs">Powered by Scorpion</span>
+							<span class="text-xs italic">Powered by Scorpion</span>
 						</div>
 					</div>
 				</div>
 				<div class="stats stats-vertical text-neutral">
 					{#if kpiStats.result}
-					{#each kpiStats.result as kpiStat}
-					<div class="stat">
-						<div class="stat-title">{kpiStat.kpi}</div>
-						<div class="stat-value">{Intl.NumberFormat().format(kpiStat.value)}</div>
-					</div>	
-					{/each}
+						{#each kpiStats.result as kpiStat (kpiStat)}
+							<div class="stat">
+								<div class="stat-title">{kpiStat.kpi}</div>
+								<div class="stat-value">{Intl.NumberFormat().format(kpiStat.value)}</div>
+							</div>
+						{/each}
 					{/if}
 				</div>
 			</div>
@@ -110,7 +126,10 @@
 	<section id="get-started" class="mt-7">
 		<h3 class="mb-3 text-lg font-semibold">How it works</h3>
 		<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-			<button onclick={login} class="card rounded-lg bg-base-100 p-4 shadow text-left hover:shadow-lg hover:cursor-pointer">
+			<button
+				onclick={login}
+				class="card rounded-lg bg-base-100 p-4 text-left shadow hover:cursor-pointer hover:shadow-lg"
+			>
 				<div
 					class="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-secondary font-bold text-secondary-content"
 				>
@@ -122,7 +141,10 @@
 				</p>
 			</button>
 
-			<button onclick={()=>goto("/submit")} class="card rounded-lg bg-base-100 p-4 shadow text-left hover:shadow-lg hover:cursor-pointer">
+			<button
+				onclick={() => goto(resolve('/submit'))}
+				class="card rounded-lg bg-base-100 p-4 text-left shadow hover:cursor-pointer hover:shadow-lg"
+			>
 				<div
 					class="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-secondary font-bold text-secondary-content"
 				>
@@ -134,7 +156,11 @@
 				</p>
 			</button>
 
-			<button onclick={()=>goto("/search")} class="card rounded-lg bg-base-100 p-4 shadow text-left hover:shadow-lg hover:cursor-pointer">
+			<a
+				href="https://doi.ipk-gatersleben.de/search"
+				target="_blank"
+				class="card rounded-lg bg-base-100 p-4 text-left shadow hover:cursor-pointer hover:shadow-lg"
+			>
 				<div
 					class="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-secondary font-bold text-secondary-content"
 				>
@@ -144,8 +170,7 @@
 				<p class="text-sm text-base-content opacity-70">
 					Your dataset is assigned a DOI and publicly accessible for the research community.
 				</p>
-			</button>
+			</a>
 		</div>
 	</section>
 </section>
-

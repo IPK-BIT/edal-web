@@ -1,26 +1,26 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "dlaRead": {
-      "description": "Indicates whether the user has accepted the Data Deposition and License Agreement (DDLA)",
-      "type": "boolean"
-    },
-    "metadata": {
-      "description": "Metadata of the dataset",
-      "$ref": "metadata-schema.json#"
-    },
-    "files": {
-      "description": "Files",
-      "type": "object"
-    },
-    "s3access": {
-      "description": "S3 access info",
-      "$ref": "s3-connection-details.json#"
-    },
-    "file_transfer_mode": {
-      "description": "File transfer mode",
-      "type": "string"
-    }
-  }
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"type": "object",
+	"properties": {
+		"dlaRead": {
+			"description": "Indicates whether the user has accepted the Data Deposition and License Agreement (DDLA)",
+			"type": "boolean"
+		},
+		"metadata": {
+			"description": "Metadata of the dataset",
+			"$ref": "metadata-schema.json#"
+		},
+		"files": {
+			"description": "Files",
+			"type": "object"
+		},
+		"s3access": {
+			"description": "S3 access info",
+			"$ref": "s3-connection-details.json#"
+		},
+		"file_transfer_mode": {
+			"description": "File transfer mode",
+			"type": "string"
+		}
+	}
 }
