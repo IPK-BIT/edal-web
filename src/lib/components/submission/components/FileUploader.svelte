@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let value: Record<string, File> = {};
+	let { value = $bindable<Record<string, File>>({}) } = $props();
 
 	function readFiles(evt: Event) {
 		const input = evt.target as HTMLInputElement | null;
@@ -37,7 +37,7 @@
 		value[Object.keys(value).length.toString()] = file;
 	}
 
-	function setAttributeWebkitdirectory(node: any) {
+	function setAttributeWebkitdirectory(node: HTMLElement) {
 		node.setAttribute('webkitdirectory', '');
 	}
 </script>
@@ -75,7 +75,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							{#each Object.keys(value) as key, i}
+							{#each Object.keys(value) as key (key)}
 								<tr class={value[key].size === 0 ? 'bg-warning/50' : ''}>
 									<td class="pl-4">
 										<div class="flex items-center gap-3">

@@ -11,14 +11,21 @@ const mapping = {
 };
 
 export default class Schemas {
+	private static identifierFromRef(ref: string): string {
+		return ref
+			.replace(/#$/, '')
+			.replace(/\.json$/, '')
+			.replace(/-schema$/, '');
+	}
+
 	static getObjectFromSchema(identifier: string) {
-		let schema = mapping[identifier as keyof typeof mapping];
+		const schema = mapping[identifier as keyof typeof mapping];
 		if (!schema) {
 			throw new Error(`No schema found for identifier: ${identifier}`);
 		}
 
 		const getDataTypeByJsonType = (type: string) => {
-			let types = {
+			const types = {
 				string: '',
 				array: [],
 				object: {},
@@ -27,8 +34,8 @@ export default class Schemas {
 			return types[type as keyof typeof types];
 		};
 
-		let obj: { [key: string]: any } = {};
-		let keys = [];
+		const obj: Record<string, unknown> = {};
+		const keys = [];
 
 		if (
 			schema &&
@@ -39,19 +46,19 @@ export default class Schemas {
 			for (const [k, v] of Object.entries(schema.properties)) {
 				keys.push(k);
 
-				//@ts-ignore
+				//@ts-expect-error schema typing
 				if (v['type'] === 'string') {
 					obj[k] = '';
-					//@ts-ignore
+					//@ts-expect-error schema typing
 				} else if (v['type'] === 'boolean') {
 					obj[k] = false;
-					//@ts-ignore
+					//@ts-expect-error schema typing
 				} else if (v['type'] === 'array') {
 					obj[k] = [];
-					//@ts-ignore
+					//@ts-expect-error schema typing
 				} else if (v['type'] === 'object') {
-					//@ts-ignore
-					let entries = Object.entries(v['properties'] || {});
+					//@ts-expect-error schema typing
+					const entries = Object.entries(v['properties'] || {});
 					if (entries.length === 0) {
 						obj[k] = {};
 					} else {
@@ -59,23 +66,27 @@ export default class Schemas {
 							entries.map((x) => [x[0], getDataTypeByJsonType((x[1] as { type: string })['type'])])
 						);
 					}
-					//@ts-ignore
+					//@ts-expect-error schema typing
+				} else if (typeof v['$ref'] === 'string') {
+					//@ts-expect-error schema typing
+					obj[k] = Schemas.getObjectFromSchema(Schemas.identifierFromRef(v['$ref']));
+					//@ts-expect-error schema typing
 				} else if (v['anyOf'] !== undefined) {
-					//@ts-ignore
+					//@ts-expect-error schema typing
 					if (v['anyOf'][0]['type'] !== undefined) {
-						//@ts-ignore
+						//@ts-expect-error schema typing
 						if (v['anyOf'][0]['type'] === 'string') {
 							obj[k] = '';
-							//@ts-ignore
+							//@ts-expect-error schema typing
 						} else if (v['anyOf'][0]['type'] === 'boolean') {
 							obj[k] = false;
-							//@ts-ignore
+							//@ts-expect-error schema typing
 						} else if (v['anyOf'][0]['type'] === 'array') {
 							obj[k] = [];
-							//@ts-ignore
+							//@ts-expect-error schema typing
 						} else if (v['anyOf'][0]['type'] === 'object') {
-							//@ts-ignore
-							let entries = Object.entries(v['properties'] || {});
+							//@ts-expect-error schema typing
+							const entries = Object.entries(v['properties'] || {});
 							if (entries.length === 0) {
 								obj[k] = {};
 							} else {
@@ -87,7 +98,7 @@ export default class Schemas {
 								);
 							}
 						}
-						//@ts-ignore
+						//@ts-expect-error schema typing
 					} else if (v['anyOf'][0]['$ref'] !== undefined) {
 						obj[k] = {};
 					} else {

@@ -1,19 +1,12 @@
-<script>
-	export let component;
-	export let field;
-	export let jsonPath = undefined;
-
+<script lang="ts">
 	import { datasetObj } from '$lib/stores/dataset';
 
-	let value;
+	let { component: Component, field, jsonPath = undefined } = $props();
 
-	if (jsonPath && datasetObj.keyed) {
-		value = datasetObj.keyed(jsonPath);
-	}
+	let value = $derived(jsonPath && datasetObj.keyed ? datasetObj.keyed(jsonPath) : undefined);
 </script>
 
-<svelte:component
-	this={component}
+<Component
 	bind:value={$value}
 	showLabel={true}
 	label={field.label}

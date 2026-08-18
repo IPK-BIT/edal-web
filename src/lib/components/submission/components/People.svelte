@@ -4,32 +4,35 @@
 
 	let { value: people = $bindable(), componentConfig = {} } = $props();
 
-	$inspect(people);
+	// $inspect removed to satisfy linter
 
 	function addPerson() {
 		people = [...people, Schemas.getObjectFromSchema('person')];
 	}
 
 	function removePerson(index: number) {
-		people = people.filter((_: any, i: number) => i !== index);
+		people = people.filter((_: unknown, i: number) => i !== index);
 	}
 
 	function importPeople() {
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.accept = '.json';
-		input.onchange = (event: any) => {
-			const file = event.target.files[0];
+		input.onchange = (event: Event) => {
+			const target = event.target as HTMLInputElement | null;
+			const file = target?.files?.[0];
+			if (!file) return;
 			const reader = new FileReader();
-			reader.onload = (e: any) => {
+			reader.onload = (e: ProgressEvent<FileReader>) => {
 				try {
-					const importedPeople = JSON.parse(e.target.result);
+					const result = (e.target && (e.target as FileReader).result) as string | null;
+					const importedPeople = result ? JSON.parse(result) : null;
 					if (Array.isArray(importedPeople)) {
 						people = [...people, ...importedPeople];
 					} else {
 						alert('Invalid file format. Please upload a JSON array of people.');
 					}
-				} catch (error) {
+				} catch {
 					alert('Error parsing file. Please ensure it is a valid JSON file.');
 				}
 			};
@@ -54,7 +57,7 @@
 	<fieldset class="fieldset">
 		<legend class="fieldset-legend">Authors</legend>
 		<div class="mb-4 space-y-4">
-			{#each people as person, index (index)}
+			{#each people, index (index)}
 				<Person
 					bind:value={people[index]}
 					onremovePerson={() => removePerson(index)}

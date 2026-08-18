@@ -19,7 +19,7 @@
 </script>
 
 <div role="tablist" class="tabs-border tabs">
-	{#each componentConfig.options as option}
+	{#each componentConfig.options as option (option.value)}
 		<button
 			role="tab"
 			class="tab {value === option.value ? 'tab-active' : ''}"
@@ -37,8 +37,9 @@
 		{#key value}
 			<ComponentWrapper
 				component={components[value as keyof typeof components]}
-				jsonPath={componentConfig.options.find((option: { value: any }) => option.value === value)
-					.jsonPath}
+				jsonPath={componentConfig.options.find(
+					(option: { value: unknown }) => option.value === value
+				).jsonPath}
 			/>
 		{/key}
 	{/if}

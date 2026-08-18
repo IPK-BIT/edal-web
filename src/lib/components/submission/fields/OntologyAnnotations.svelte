@@ -1,24 +1,26 @@
-<script context="module" lang="ts">
+<script module lang="ts">
 	export type OntoOption = { label: string; iri: string; ontology_name: string; type: string };
 </script>
 
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	export let label: string = '';
-	export let showLabel: boolean = true;
-	export let api: string = 'https://api.terminology.tib.eu/api/';
-
-	export let selectionChangedEvent: (selectedOptions: OntoOption[]) => void = (selectedOptions) => {
-		console.log(selectedOptions);
-	};
-	export let parameter: string = 'collection=DataPLANT';
-	export let className: string | undefined = undefined;
-	export let value: string[] = [];
+	let {
+		label = '',
+		showLabel = true,
+		api = 'https://api.terminology.tib.eu/api/',
+		selectionChangedEvent = (selectedOptions: OntoOption[]) => {
+			console.log(selectedOptions);
+		},
+		parameter = 'collection=DataPLANT',
+		className = undefined as string | undefined,
+		value = $bindable<string[]>([])
+	} = $props();
 
 	onMount(() => {
 		// widget injected at runtime by external script
-		const win = window as any;
+		type Ts4Widgets = { createAutocomplete?: (...args: unknown[]) => void };
+		const win = window as Window & { ts4nfdiWidgets?: Ts4Widgets };
 		if (win && win.ts4nfdiWidgets && typeof win.ts4nfdiWidgets.createAutocomplete === 'function') {
 			win.ts4nfdiWidgets.createAutocomplete(
 				{
@@ -56,7 +58,7 @@
 		{/if}
 		{#if value.length > 0}
 			<ul class="px-2 py-4">
-				{#each value as subject, i}
+				{#each value as subject, i (subject)}
 					<li class="flex justify-between p-1 hover:bg-base-300">
 						<p>{subject}</p>
 						<button

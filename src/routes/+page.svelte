@@ -1,4 +1,5 @@
 <script lang="ts">
+	/* eslint-disable svelte/prefer-svelte-reactivity */
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import logo from '$lib/assets/favicon.png';
@@ -14,6 +15,12 @@
 
 	type KpiStat = { kpi: string; value: number };
 	let kpiStats: { result?: KpiStat[]; detail?: string } = {};
+
+	const prevMonthDate = (() => {
+		const d = new Date();
+		d.setMonth(d.getMonth() - 1);
+		return d;
+	})();
 
 	onMount(async () => {
 		const response = await fetch('/');
@@ -83,13 +90,7 @@
 							>Statistics ({new Intl.DateTimeFormat('en', {
 								month: 'long',
 								year: 'numeric'
-							}).format(
-								(() => {
-									const d = new Date();
-									d.setMonth(d.getMonth() - 1);
-									return d;
-								})()
-							)})</strong
+							}).format(prevMonthDate)})</strong
 						>
 					</div>
 					<div class="flex items-center gap-2 text-sm">

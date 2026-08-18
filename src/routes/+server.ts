@@ -1,11 +1,9 @@
 import type { RequestHandler } from './$types';
 import Database from 'better-sqlite3';
-import { randomUUID } from 'crypto';
-import { start } from 'repl';
 
 const db = new Database('edal-submissions.db');
 
-export const GET: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async () => {
 	const token = (db.prepare('SELECT token from scorpion LIMIT 1').get() as { token: string })[
 		'token'
 	];

@@ -5,7 +5,21 @@
 	import Table from '$lib/components/search/Table.svelte';
 	import { onMount } from 'svelte';
 
-	let payload: any = {
+	type SearchPayload = {
+		hitType: string;
+		existingQuery: string;
+		filters: unknown[];
+		bottomResultId: number | null;
+		pageSize: number;
+		pageIndex: number;
+		pagination: unknown[];
+		pageArraySize: number;
+		displayedPage: number;
+		queries: unknown[];
+		whereToSearch: string;
+	};
+
+	let payload: SearchPayload = {
 		hitType: 'dataset',
 		existingQuery: '',
 		filters: [],
@@ -19,13 +33,13 @@
 		whereToSearch: 'Metadata'
 	};
 
-	let data: { queries: any[]; facets: any[]; results: any[] } = $state({
+	let data: { queries: unknown[]; facets: unknown[]; results: unknown[] } = $state({
 		queries: [],
 		facets: [],
 		results: []
 	});
 	let activeFilter: string[] = $state([]);
-	let facets: any[] = $state([]);
+	let facets: unknown[] = $state([]);
 
 	async function parseQuery(filter: {
 		type: string;
@@ -84,9 +98,8 @@
 		}
 		// remove URL parameters after processing without reloading the page
 		if (qValues.length) {
-			const url = new URL(window.location.href);
-			url.search = '';
-			window.history.replaceState({}, document.title, url.toString());
+			// Remove query parameters without constructing a mutable URL instance
+			window.history.replaceState({}, document.title, window.location.pathname);
 		}
 		updateFacets();
 	});
@@ -101,7 +114,7 @@
 		}
 	});
 
-	$inspect(facets);
+	// removed $inspect to satisfy linter
 </script>
 
 <SearchBar
@@ -127,7 +140,7 @@
 	<main class="m-4 overflow-auto rounded-lg bg-base-200">
 		<Filter
 			bind:data={activeFilter}
-			update={(message: any) => (activeFilter = activeFilter.filter((f) => f !== message))}
+			update={(message: string) => (activeFilter = activeFilter.filter((f) => f !== message))}
 		/>
 		<Table bind:data />
 	</main>

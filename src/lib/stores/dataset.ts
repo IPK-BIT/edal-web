@@ -1,17 +1,57 @@
 import { writable, get, derived } from 'svelte/store';
 import { keyed } from '@humanspeak/svelte-keyed';
+import Schemas from '$lib/js';
+
+export type Author = {
+	firstName?: string;
+	lastName?: string;
+	affiliation?: string;
+	city?: string;
+	address?: string;
+	orcid?: string;
+	role?: string;
+};
+
+export type Dataset = {
+	metadata: {
+		title: string;
+		authors: Author[];
+		[key: string]: unknown;
+	};
+	file_transfer_mode: string;
+	files: Record<string, File>;
+	s3access: {
+		endpoint: string;
+		bucket: string;
+		region: string;
+		accessKey: string;
+		secretKey: string;
+		validated: boolean;
+		validationMsg: string;
+		[key: string]: unknown;
+	};
+	dlaRead: boolean;
+	[key: string]: unknown;
+};
+
+const emptyDataset = () => Schemas.getObjectFromSchema('dataset') as Dataset;
 
 function createDatasetStoresSynced() {
-	const storeDatasetObj = writable<Record<string, any>>({});
+	const storeDatasetObj = writable<Dataset>(emptyDataset());
 	const storeDatasetStr = writable<string>('');
 
-	const setDatasetObj = (DatasetObj: Record<string, any>) => {
+	const setDatasetObj = (DatasetObj: Dataset) => {
 		storeDatasetObj.set(DatasetObj);
 		storeDatasetStr.set(JSON.stringify(DatasetObj, null, 2));
 	};
 
-	const updateDatasetObj = (DatasetObj: any) => {
-		storeDatasetObj.update(DatasetObj);
+	const updateDatasetObj = (DatasetObj: unknown) => {
+		// accept an updater function or value
+		if (typeof DatasetObj === 'function') {
+			storeDatasetObj.update(DatasetObj as (d: Dataset) => Dataset);
+		} else {
+			storeDatasetObj.set(DatasetObj as Dataset);
+		}
 		storeDatasetStr.set(JSON.stringify(get(storeDatasetObj), null, 2));
 	};
 
@@ -24,8 +64,8 @@ function createDatasetStoresSynced() {
 		subscribe: typeof storeDatasetObj.subscribe;
 		update: typeof updateDatasetObj;
 		set: typeof setDatasetObj;
-		keyed?: (level: any) => ReturnType<typeof keyed>;
-		keyedComments?: (jsonPath: any, commentName: any) => any;
+		keyed?: (level: string) => ReturnType<typeof keyed>;
+		keyedComments?: (jsonPath: string, commentName: string) => unknown;
 	};
 
 	const storesSynced: {
@@ -52,7 +92,7 @@ function createDatasetStoresSynced() {
 		const keyedComments = keyed(storesSynced.DatasetObj, jsonPath);
 
 		const derivedComments = derived(keyedComments, ($comments) => {
-			let comment = $comments.find((c: { name: string; value: string }) => c.name == commentName);
+			const comment = $comments.find((c: { name: string; value: string }) => c.name == commentName);
 			let value = '';
 			if (comment) {
 				value = comment.value;
@@ -67,8 +107,9 @@ function createDatasetStoresSynced() {
 			keyedComments.update(($comments) => {
 				let comment = $comments.find((c: { name: string; value: string }) => c.name == commentName);
 				if (comment) {
-					comment.value = value;
-					$comments = $comments;
+					$comments = $comments.map((c: { name: string; value: string }) =>
+						c.name === commentName ? { ...c, value } : c
+					);
 				} else {
 					comment = { name: commentName, value: value };
 					$comments = [...$comments, comment];

@@ -3,17 +3,12 @@
 
 	let {
 		facets = $bindable(),
-		update = (category: string, value: { label: string; value: string }) => {
-			console.log('updating facet');
+		update = () => {
+			// default no-op
 		}
 	} = $props();
 
-	let exampleQuery = {
-		hitType: 'dataset',
-		filters: []
-	};
-
-	let data: { category: string; sortedByHits: { label: string; value: string }[] }[] = $state([]);
+	// removed unused exampleQuery and data
 
 	onMount(async () => {});
 </script>
@@ -32,12 +27,12 @@
             </label>
         </div>
     </div> -->
-	{#each facets as facet}
+	{#each facets as facet (facet.category)}
 		<div class="border-b border-gray-200 p-4">
 			<details open>
 				<summary class="mb-2 font-semibold">{facet.category}</summary>
 				<ul>
-					{#each facet.sortedByHits as value, i}
+					{#each facet.sortedByHits as value, i (value.value)}
 						{#if i < 5}
 							<li class="mb-1 ml-4 flex items-center">
 								<button

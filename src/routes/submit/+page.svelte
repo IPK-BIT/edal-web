@@ -2,7 +2,7 @@
 	import Schemas from '$lib/js';
 	import Console from '$lib/components/submission/Console.svelte';
 	import Questionnaire from '$lib/components/submission/Questionnaire.svelte';
-	import { datasetObj } from '$lib/stores/dataset';
+	import { datasetObj, type Dataset } from '$lib/stores/dataset';
 	import generalConfig from '$lib/config/general.json';
 	import { onMount } from 'svelte';
 	import ProgressBar from '$lib/components/submission/ProgressBar.svelte';
@@ -10,7 +10,7 @@
 	let submissionId: string = '';
 
 	onMount(async () => {
-		$datasetObj = Schemas.getObjectFromSchema('dataset');
+		$datasetObj = Schemas.getObjectFromSchema('dataset') as Dataset;
 		const params = new URLSearchParams(window.location.search);
 		submissionId = params.get('submission_id') || '';
 		if (submissionId) {

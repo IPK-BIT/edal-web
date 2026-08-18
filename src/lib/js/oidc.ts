@@ -50,9 +50,9 @@ export function checkTokenValidity(token: string) {
 }
 
 export async function retrieveToken(code: string) {
-	let oidcConfig = await retrieveOidcConfig();
-	let codeVerifier = localStorage.getItem('code_verifier') || '';
-	let data = {
+	const oidcConfig = await retrieveOidcConfig();
+	const codeVerifier = localStorage.getItem('code_verifier') || '';
+	const data = {
 		grant_type: 'authorization_code',
 		code: code,
 		client_id: generalConfig.aai['client-id'],
@@ -60,7 +60,7 @@ export async function retrieveToken(code: string) {
 		code_verifier: codeVerifier
 	};
 
-	let response = await fetch(oidcConfig.token_endpoint, {
+	const response = await fetch(oidcConfig.token_endpoint, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded'
@@ -68,9 +68,10 @@ export async function retrieveToken(code: string) {
 		body: new URLSearchParams(data).toString()
 	});
 
-	let tokenResponse = await response.json();
+	const tokenResponse = await response.json();
 	localStorage.setItem('access_token', tokenResponse.access_token);
 	localStorage.setItem('refresh_token', tokenResponse.refresh_token);
+	// eslint-disable-next-line svelte/no-navigation-without-resolve
 	replaceState(window.location.pathname, {});
 }
 
@@ -79,14 +80,14 @@ export async function renewToken(refreshToken: string) {
 		return false;
 	}
 
-	let oidcConfig = await retrieveOidcConfig();
-	let data = {
+	const oidcConfig = await retrieveOidcConfig();
+	const data = {
 		grant_type: 'refresh_token',
 		refresh_token: refreshToken,
 		client_id: generalConfig.aai['client-id']
 	};
 
-	let response = await fetch(oidcConfig.token_endpoint, {
+	const response = await fetch(oidcConfig.token_endpoint, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded'
@@ -94,17 +95,17 @@ export async function renewToken(refreshToken: string) {
 		body: new URLSearchParams(data).toString()
 	});
 
-	let tokenResponse = await response.json();
+	const tokenResponse = await response.json();
 	localStorage.setItem('access_token', tokenResponse.access_token);
 	localStorage.setItem('refresh_token', tokenResponse.refresh_token);
 	return true;
 }
 
 export async function performLogin(codeChallenge: string) {
-	let oidcConfig = await retrieveOidcConfig();
-	let clientId = generalConfig.aai['client-id'];
+	const oidcConfig = await retrieveOidcConfig();
+	const clientId = generalConfig.aai['client-id'];
 
-	let auth_url = oidcConfig.authorization_endpoint;
+	const auth_url = oidcConfig.authorization_endpoint;
 
 	const params = {
 		response_type: 'code',

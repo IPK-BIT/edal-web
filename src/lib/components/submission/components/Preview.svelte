@@ -11,16 +11,19 @@
 		</h3>
 
 		<p class="text-sm text-neutral-700">
-			{#each $datasetObj.metadata.authors as author, i}
+			{#each $datasetObj.metadata.authors as author, i (author.orcid ?? i)}
 				{author.firstName}
 				{author.lastName}
-				<a
-					href={author.orcid ? `https://orcid.org/${author.orcid}` : '#'}
-					target="_blank"
+				<button
+					class="btn p-0 btn-ghost btn-xs"
+					onclick={() => {
+						if (author.orcid)
+							window.open(`https://orcid.org/${author.orcid}`, '_blank', 'noopener');
+					}}
 					aria-label="ORDCID"
 				>
 					<img src={orcidLogo} alt="ORCID Logo" class="inline h-4 w-4" />
-				</a>
+				</button>
 				{#if i < $datasetObj.metadata.authors.length - 1},&nbsp;{/if}
 			{/each}
 		</p>

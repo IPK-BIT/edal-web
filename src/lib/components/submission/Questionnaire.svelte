@@ -10,10 +10,9 @@
 	import Files from './components/Files.svelte';
 	import Dla from './components/Dla.svelte';
 	import Preview from './components/Preview.svelte';
-	import { datasetObj } from '$lib/stores/dataset';
+	import { datasetObj, currentStep, type Author, type Dataset } from '$lib/stores/dataset';
 	import { onMount } from 'svelte';
 	import Schemas from '$lib/js';
-	import { currentStep } from '$lib/stores/dataset';
 
 	// let $currentStep = $state(0);
 
@@ -53,9 +52,12 @@
 
 	function getValueByPath(obj: unknown, path: string) {
 		// path: "metadata.title" etc
-		return path
-			.split('.')
-			.reduce((o: any, k: string) => (o && o[k] !== undefined ? o[k] : undefined), obj as any);
+		return path.split('.').reduce((o: unknown, k: string) => {
+			if (o && typeof o === 'object' && k in (o as Record<string, unknown>)) {
+				return (o as Record<string, unknown>)[k];
+			}
+			return undefined;
+		}, obj as unknown);
 	}
 
 	async function next() {
@@ -66,7 +68,7 @@
 			for (const field of step.fields) {
 				if (field.mapping.jsonPath === 'metadata.title') {
 					const response = await fetch(
-						`https://dmz-web-169.ipk-gatersleben.de/submission/info/exists?title=${encodeURIComponent(getValueByPath($datasetObj, field.mapping.jsonPath))}`,
+						`https://dmz-web-169.ipk-gatersleben.de/submission/info/exists?title=${encodeURIComponent(`${getValueByPath($datasetObj, field.mapping.jsonPath)}`)}`,
 						{
 							method: 'GET',
 							headers: {
@@ -98,15 +100,15 @@
 		}
 		// Additional validation for authors step
 		if (step.jsonPath === 'metadata.authors') {
-			const authors = $datasetObj.metadata?.authors || [];
-			const hasCreator = authors.some((author: { role: string }) => author.role === 'Creator');
+			const authors: Author[] = $datasetObj.metadata.authors;
+			const hasCreator = authors.some((author) => author.role === 'Creator');
 			if (!hasCreator) {
 				alert('You need to specify at least one author with the Creator role.');
 				return;
 			}
-			let missingOrcids = [];
+			let missingOrcids: string[] = [];
 			for (const author of authors) {
-				if (!author.orcid || author.orcid.trim() === '') {
+				if (!author.orcid || (typeof author.orcid === 'string' && author.orcid.trim() === '')) {
 					missingOrcids.push(
 						author.lastName ? `${author.firstName} ${author.lastName}` : 'Unnamed Author'
 					);
@@ -136,7 +138,7 @@
 					return;
 				}
 			} else if ($datasetObj.file_transfer_mode === 's3') {
-				const s3 = $datasetObj.s3access || {};
+				const s3 = $datasetObj.s3access;
 				const missing = [];
 				if (!s3.endpoint || s3.endpoint.trim() === '') missing.push('S3 Endpoint URL');
 				if (!s3.bucket || s3.bucket.trim() === '') missing.push('Bucket Name');
@@ -213,7 +215,7 @@
 								sendSuccessNotification();
 								//   index = 0;
 								fileId = 0;
-								$datasetObj = Schemas.getObjectFromSchema('dataset');
+								$datasetObj = Schemas.getObjectFromSchema('dataset') as Dataset;
 								executeHook(0);
 								$currentStep = 0;
 							})
@@ -224,15 +226,17 @@
 					return;
 				}
 				fileId = fileQueue.pop()!;
-				const file = $datasetObj.files[fileId];
+				const file = $datasetObj.files![fileId];
 				let formData = new FormData();
 				formData.set('file', file, file.name);
 
 				let metadata = JSON.parse(JSON.stringify($datasetObj.metadata));
-				metadata.authors.forEach((author: any) => {
-					author.address = `${author.affiliation}, ${author.city}, ${author.address}`;
-					delete author.affiliation;
-					delete author.city;
+				metadata.authors = (metadata.authors || []).map((author: Record<string, unknown>) => {
+					const { affiliation, city, ...rest } = author as Record<string, unknown>;
+					return {
+						...rest,
+						address: `${affiliation ?? ''}, ${city ?? ''}, ${(author as Record<string, unknown>).address ?? ''}`
+					} as Record<string, unknown>;
 				});
 
 				formData.set('metaData', JSON.stringify(metadata));
@@ -262,7 +266,7 @@
 					});
 			}
 		} else if ($datasetObj.file_transfer_mode == 's3') {
-			const s3 = $datasetObj.s3access || {};
+			const s3 = $datasetObj.s3access;
 			const missing = [];
 			if (!s3.endpoint || s3.endpoint.trim() === '') missing.push('S3 Endpoint URL');
 			if (!s3.bucket || s3.bucket.trim() === '') missing.push('Bucket Name');
@@ -285,10 +289,12 @@
 			// }
 			formData.append('s3access', JSON.stringify($datasetObj.s3access));
 			let metadata = JSON.parse(JSON.stringify($datasetObj.metadata));
-			metadata.authors.forEach((author: any) => {
-				author.address = `${author.affiliation}, ${author.city}, ${author.address}`;
-				delete author.affiliation;
-				delete author.city;
+			metadata.authors = (metadata.authors || []).map((author: Record<string, unknown>) => {
+				const { affiliation, city, ...rest } = author as Record<string, unknown>;
+				return {
+					...rest,
+					address: `${affiliation ?? ''}, ${city ?? ''}, ${(author as Record<string, unknown>).address ?? ''}`
+				} as Record<string, unknown>;
 			});
 			formData.append('metadata', JSON.stringify(metadata));
 
@@ -323,7 +329,14 @@
 {#if steps.length > 0}
 	<div id="toast" hidden class="toast toast-end toast-top z-10 mt-24">
 		<div class="alert alert-success">
-			<span>Submission sent successfully.</span>
+			{#if $datasetObj.file_transfer_mode === 'local'}
+				<span>Submission sent successfully.</span>
+			{:else}
+				<span
+					>Submission initiated successfully. Please be aware this might take a while depending on
+					the size of your bucket.</span
+				>
+			{/if}
 		</div>
 	</div>
 

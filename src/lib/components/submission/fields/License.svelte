@@ -1,14 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-
-	let {
-		label = '',
-		lvl = '',
-		attr,
-		value = $bindable(),
-		showLabel = true,
-		focus = false
-	} = $props();
+	let { label = '', attr, value = $bindable(), showLabel = true } = $props();
 
 	if (!label) {
 		label = attr;

@@ -1,7 +1,7 @@
 <script lang="ts">
 	let {
 		data = $bindable(),
-		update = (evt: any) => {
+		update = (evt: unknown) => {
 			console.log(evt);
 		}
 	} = $props();
@@ -12,7 +12,7 @@
 		<div class="text-center text-gray-500">No active filters.</div>
 	{:else}
 		<div class="flex flex-wrap items-center gap-2">
-			{#each data as filter}
+			{#each data as filter (filter)}
 				<span class="flex items-center rounded border border-secondary p-1">
 					{filter}
 					<button

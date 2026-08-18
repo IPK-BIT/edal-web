@@ -1,19 +1,15 @@
-<script>
-	export let component;
-	export let jsonPath = undefined;
-	export let componentConfig = {};
-
+<script lang="ts">
 	import { datasetObj } from '$lib/stores/dataset';
 
-	let value;
+	let { component: Component, jsonPath = undefined, componentConfig = {} } = $props();
 
-	if (jsonPath && datasetObj.keyed) {
-		if (jsonPath === '.') {
-			value = datasetObj;
-		} else {
-			value = datasetObj.keyed(jsonPath);
-		}
-	}
+	let value = $derived(
+		jsonPath && datasetObj.keyed
+			? jsonPath === '.'
+				? datasetObj
+				: datasetObj.keyed(jsonPath)
+			: undefined
+	);
 </script>
 
-<svelte:component this={component} bind:value={$value} {jsonPath} {componentConfig} />
+<Component bind:value={$value} {jsonPath} {componentConfig} />

@@ -10,7 +10,7 @@
 </script>
 
 <ul class="steps w-full">
-	{#each steps as step, index}
+	{#each steps as step, index (step.shortTitle)}
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<li

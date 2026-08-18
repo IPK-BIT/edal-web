@@ -20,7 +20,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each data.results as result}
+				{#each data.results as result (result.doi)}
 					<tr
 						class="hover:cursor-pointer hover:bg-secondary hover:text-secondary-content"
 						onclick={() => window.open(`https://dx.doi.org/${result.doi}`, '_blank')}
@@ -36,7 +36,7 @@
 		<div class="mt-4 flex items-center justify-center">
 			<div class="join">
 				<button class="btn join-item btn-outline">Prev</button>
-				{#each data.pageArray as page}
+				{#each data.pageArray as page (page.page)}
 					<button
 						class="btn join-item transition btn-outline"
 						class:btn-primary={page.active}

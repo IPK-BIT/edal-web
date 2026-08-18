@@ -1,6 +1,6 @@
 <script lang="ts">
 	let {
-		update = (evt: any) => {
+		update = (evt: unknown) => {
 			console.log(evt);
 		}
 	} = $props();
