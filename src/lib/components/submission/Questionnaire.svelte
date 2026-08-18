@@ -171,6 +171,23 @@
 	// let index = 0;
 	let fileId = $state(0);
 
+	let isSubmitting = $state(false);
+	let submitPhase = $state<'uploading' | 'finalizing' | 's3'>('uploading');
+	let uploadDone = $state(0);
+	let uploadTotal = $state(0);
+	let submitDialog: HTMLDialogElement | undefined = $state();
+	let lastSubmissionMode: 'local' | 's3' = $state('local');
+
+	$effect(() => {
+		if (!isSubmitting) return;
+		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+			e.preventDefault();
+			e.returnValue = '';
+		};
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+	});
+
 	function finish() {
 		if (
 			!confirm(
@@ -193,6 +210,13 @@
 			).reverse();
 			let activeConnections = 0,
 				threadsQuantity = 10;
+
+			isSubmitting = true;
+			submitPhase = 'uploading';
+			uploadDone = 0;
+			uploadTotal = fileQueue.length;
+			submitDialog?.showModal();
+
 			sendNextFile();
 
 			function sendNextFile() {
@@ -201,6 +225,7 @@
 				}
 				if (!fileQueue.length) {
 					if (!activeConnections) {
+						submitPhase = 'finalizing';
 						fetch('https://dmz-web-169.ipk-gatersleben.de/submission/publication/publish', {
 							method: 'POST',
 							headers: {
@@ -212,6 +237,7 @@
 							})
 						})
 							.then(() => {
+								lastSubmissionMode = 'local';
 								sendSuccessNotification();
 								//   index = 0;
 								fileId = 0;
@@ -221,6 +247,10 @@
 							})
 							.catch((err) => {
 								console.error('Error publishing dataset metadata:', err);
+							})
+							.finally(() => {
+								isSubmitting = false;
+								submitDialog?.close();
 							});
 					}
 					return;
@@ -257,12 +287,14 @@
 				})
 					.then(() => {
 						activeConnections--;
+						uploadDone++;
 						sendNextFile();
 					})
 					.catch((err) => {
 						console.error('Error uploading file:', err);
 						activeConnections--;
 						fileQueue.push(fileId);
+						sendNextFile();
 					});
 			}
 		} else if ($datasetObj.file_transfer_mode == 's3') {
@@ -298,6 +330,7 @@
 			});
 			formData.append('metadata', JSON.stringify(metadata));
 
+			isSubmitting = true;
 			fetch(`${base_url}/upload/s3upload`, {
 				method: 'POST',
 				body: formData,
@@ -306,11 +339,20 @@
 					// Do NOT set Content-Type for FormData, browser will handle it
 				}
 			})
-				.then(() => {})
+				.then(() => {
+					fileId = 0;
+					$datasetObj = Schemas.getObjectFromSchema('dataset') as Dataset;
+					executeHook(0);
+					$currentStep = 0;
+				})
 				.catch((err) => {
 					console.error('Error submitting S3 info:', err);
+				})
+				.finally(() => {
+					isSubmitting = false;
 				});
 
+			lastSubmissionMode = 's3';
 			sendSuccessNotification();
 		}
 	}
@@ -327,9 +369,35 @@
 </script>
 
 {#if steps.length > 0}
+	<dialog
+		bind:this={submitDialog}
+		class="modal"
+		oncancel={(e) => e.preventDefault()}
+		aria-labelledby="submit-progress-title"
+	>
+		<div class="modal-box flex flex-col items-center gap-4 text-center">
+			<span class="loading loading-lg loading-spinner text-primary"></span>
+			{#if submitPhase === 'uploading'}
+				<h3 id="submit-progress-title" class="text-lg font-bold">Uploading files…</h3>
+				<p class="text-sm text-neutral">
+					Please keep this window open. Each file is uploaded individually, so this may take a
+					while.
+				</p>
+				<progress class="progress w-full progress-primary" value={uploadDone} max={uploadTotal}
+				></progress>
+				<p class="text-sm text-neutral">{uploadDone} of {uploadTotal} files uploaded</p>
+			{:else}
+				<h3 id="submit-progress-title" class="text-lg font-bold">Finalizing submission…</h3>
+				<p class="text-sm text-neutral">
+					All files have been uploaded. Publishing your dataset now.
+				</p>
+			{/if}
+		</div>
+	</dialog>
+
 	<div id="toast" hidden class="toast toast-end toast-top z-10 mt-24">
 		<div class="alert alert-success">
-			{#if $datasetObj.file_transfer_mode === 'local'}
+			{#if lastSubmissionMode === 'local'}
 				<span>Submission sent successfully.</span>
 			{:else}
 				<span
@@ -380,7 +448,7 @@
 
 		<div class="m-2 flow-root">
 			{#if $currentStep > 0}
-				<button class="btn btn-secondary" onclick={prev}>Previous</button>
+				<button class="btn btn-secondary" disabled={isSubmitting} onclick={prev}>Previous</button>
 			{/if}
 
 			{#if $currentStep === 0}
@@ -388,7 +456,9 @@
 			{:else if $currentStep < steps.length - 1}
 				<button class="btn float-right btn-primary" onclick={next}>Next</button>
 			{:else}
-				<button class="btn float-right btn-primary" onclick={finish}>Finish</button>
+				<button class="btn float-right btn-primary" disabled={isSubmitting} onclick={finish}
+					>Finish</button
+				>
 			{/if}
 		</div>
 	</section>
