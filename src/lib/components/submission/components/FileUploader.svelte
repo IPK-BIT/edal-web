@@ -11,6 +11,24 @@
 		}
 	}
 
+	function removeFile(key: string) {
+		// Rebuild the map with contiguous "0".."n-1" keys so code that derives
+		// a queue length from Object.keys(value).length (the upload step in
+		// Questionnaire.svelte) stays in sync with the actual keys present.
+		// A plain `delete value[key]` leaves a gap, and index-based lookups
+		// (files[fileId]) then hit `undefined` and throw mid-upload.
+		const remaining = Object.keys(value)
+			.sort((a, b) => Number(a) - Number(b))
+			.filter((k) => k !== key)
+			.map((k) => value[k]);
+
+		const reindexed: Record<string, File> = {};
+		remaining.forEach((file, i) => {
+			reindexed[i.toString()] = file;
+		});
+		value = reindexed;
+	}
+
 	function safeAddFile(file: File) {
 		// Skip hidden files
 		if (file.name.startsWith('.')) {
@@ -109,10 +127,7 @@
 										<button
 											aria-label="remove file"
 											class="btn btn-circle btn-ghost btn-xs"
-											onclick={() => {
-												delete value[key];
-												value = value;
-											}}
+											onclick={() => removeFile(key)}
 										>
 											<svg
 												xmlns="http://www.w3.org/2000/svg"
