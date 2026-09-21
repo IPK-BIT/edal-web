@@ -368,6 +368,8 @@
 					if (!response.ok) {
 						throw new Error(`S3 submit failed with status ${response.status}`);
 					}
+					lastSubmissionMode = 's3';
+					sendSuccessNotification();
 					fileId = 0;
 					$datasetObj = Schemas.getObjectFromSchema('dataset') as Dataset;
 					executeHook(0);
@@ -380,9 +382,6 @@
 				.finally(() => {
 					isSubmitting = false;
 				});
-
-			lastSubmissionMode = 's3';
-			sendSuccessNotification();
 		}
 	}
 
