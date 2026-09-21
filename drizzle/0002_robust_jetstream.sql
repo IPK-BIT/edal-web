@@ -1,0 +1,1 @@
+ALTER TABLE `submissions` ADD `access_token_hash` text NOT NULL;

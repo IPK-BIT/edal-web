@@ -8,6 +8,7 @@ export const submissions = sqliteTable('submissions', {
 	rocrate_link: text('rocrate_link'),
 	user_id: integer(),
 	arc_id: integer(),
+	access_token_hash: text('access_token_hash').notNull(),
 	submitted_at: integer('submitted_at', { mode: 'timestamp' }).$defaultFn(() => new Date())
 });
 

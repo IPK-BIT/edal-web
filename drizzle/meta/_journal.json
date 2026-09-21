@@ -15,6 +15,13 @@
       "when": 1789977824314,
       "tag": "0001_material_iceman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789988704192,
+      "tag": "0002_robust_jetstream",
+      "breakpoints": true
     }
   ]
 }

@@ -13,10 +13,13 @@
 		$datasetObj = Schemas.getObjectFromSchema('dataset') as Dataset;
 		const params = new URLSearchParams(window.location.search);
 		submissionId = params.get('submission_id') || '';
-		if (submissionId) {
-			// load exisiting submission from GET /submit?submission_id=...
+		const accessToken = params.get('access_token') || '';
+		if (submissionId && accessToken) {
+			// load exisiting submission from GET /submit?submission_id=...&access_token=...
 			try {
-				const res = await fetch(`/submit?submission_id=${submissionId}`);
+				const res = await fetch(
+					`/submit?submission_id=${encodeURIComponent(submissionId)}&access_token=${encodeURIComponent(accessToken)}`
+				);
 				if (res.ok) {
 					let metadata = {
 						title: 'Facultative CAM in Talinum',
