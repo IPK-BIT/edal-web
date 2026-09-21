@@ -1,8 +1,7 @@
+import { db } from '$lib/server/db';
+import { submissions } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
 import type { RequestHandler } from './$types';
-import Database from 'better-sqlite3';
-import { randomUUID } from 'crypto';
-
-const db = new Database('edal-submissions.db');
 
 export const GET: RequestHandler = async ({ url }) => {
 	const submission_id = url.searchParams.get('submission_id');
@@ -14,19 +13,20 @@ export const GET: RequestHandler = async ({ url }) => {
 		});
 	}
 
-	const st = db.prepare(
-		'SELECT id, gitlab_token, rocrate_link, user_id, arc_id, submitted_at FROM submissions WHERE id = ?'
-	);
-	const row = st.get(submission_id);
+	const [submission] = await db
+		.select()
+		.from(submissions)
+		.where(eq(submissions.id, submission_id))
+		.limit(1);
 
-	if (!row) {
+	if (!submission) {
 		return new Response(JSON.stringify({ error: 'Submission not found' }), {
 			status: 404,
 			headers: { 'Content-Type': 'application/json' }
 		});
 	}
 
-	return new Response(JSON.stringify(row), {
+	return new Response(JSON.stringify(submission), {
 		status: 200,
 		headers: { 'Content-Type': 'application/json' }
 	});
@@ -35,17 +35,6 @@ export const GET: RequestHandler = async ({ url }) => {
 export const POST: RequestHandler = async ({ request }) => {
 	const payload = await request.json();
 	const { gitlab_token, rocrate_link, user_id, arc_id } = payload ?? {};
-
-	const submission_id = randomUUID();
-
-	db.exec(`CREATE TABLE IF NOT EXISTS submissions (
-        id TEXT PRIMARY KEY NOT NULL,
-        gitlab_token TEXT NOT NULL,
-        rocrate_link TEXT NOT NULL,
-        user_id TEXT NOT NULL,
-        arc_id TEXT NOT NULL,
-        submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`);
 
 	if (!gitlab_token || !rocrate_link || !user_id || !arc_id) {
 		return new Response(JSON.stringify({ error: 'Missing fields' }), {
@@ -57,8 +46,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (
 		typeof gitlab_token !== 'string' ||
 		typeof rocrate_link !== 'string' ||
-		typeof user_id !== 'string' ||
-		typeof arc_id !== 'string'
+		typeof user_id !== 'number' ||
+		typeof arc_id !== 'number'
 	) {
 		return new Response(JSON.stringify({ error: 'Invalid field types' }), {
 			status: 400,
@@ -66,13 +55,18 @@ export const POST: RequestHandler = async ({ request }) => {
 		});
 	}
 
-	const stmnt = db.prepare(
-		'INSERT INTO submissions (id, gitlab_token, rocrate_link, user_id, arc_id) VALUES (?, ?, ?, ?, ?)'
-	);
-	stmnt.run(submission_id, gitlab_token, rocrate_link, user_id, arc_id);
+	const [submission] = await db
+		.insert(submissions)
+		.values({
+			gitlab_token,
+			rocrate_link,
+			user_id,
+			arc_id
+		})
+		.returning({ id: submissions.id });
 
 	return new Response(
-		JSON.stringify({ status: 'Submission received', submission_id: submission_id }),
+		JSON.stringify({ status: 'Submission received', submission_id: submission.id }),
 		{
 			status: 200,
 			headers: { 'Content-Type': 'application/json' }

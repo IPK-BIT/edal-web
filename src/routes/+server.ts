@@ -1,12 +1,17 @@
 import type { RequestHandler } from './$types';
-import Database from 'better-sqlite3';
-
-const db = new Database('edal-submissions.db');
+import { db } from '$lib/server/db';
+import { scorpion } from '$lib/server/db/schema';
 
 export const GET: RequestHandler = async () => {
-	const token = (db.prepare('SELECT token from scorpion LIMIT 1').get() as { token: string })[
-		'token'
-	];
+	const [scorpionConfig] = await db.select({ token: scorpion.token }).from(scorpion).limit(1);
+	const token = scorpionConfig?.token;
+
+	if (!token) {
+		return new Response(JSON.stringify({ error: 'Scorpion token not configured' }), {
+			status: 500,
+			headers: { 'Content-Type': 'application/json' }
+		});
+	}
 
 	const startDate = new Date();
 	startDate.setMonth(startDate.getMonth() - 1);

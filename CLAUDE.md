@@ -17,10 +17,16 @@ Package manager is **pnpm** (see `pnpm-lock.yaml` / `pnpm-workspace.yaml`).
 - `pnpm check:watch` — same, in watch mode
 - `pnpm lint` — `prettier --check .` followed by `eslint .`
 - `pnpm format` — `prettier --write .`
+- `pnpm db:push` — push the Drizzle schema (`src/lib/server/db/schema.ts`) directly to the SQLite DB
+- `pnpm db:generate` — generate a Drizzle migration from schema changes
+- `pnpm db:migrate` — apply Drizzle migrations
+- `pnpm db:studio` — open Drizzle Studio against the local DB
 
 There is no test runner configured in this repo. There is no separate `pnpm typecheck` — use `pnpm check`.
 
-`pnpm-workspace.yaml` marks `better-sqlite3`, `esbuild`, and `@tailwindcss/oxide` as built dependencies requiring `pnpm approve-builds` / `onlyBuiltDependencies` — relevant after a fresh `pnpm install`.
+`pnpm-workspace.yaml` marks `better-sqlite3`, `esbuild`, and `@tailwindcss/oxide` as built dependencies requiring `pnpm approve-builds` (`allowBuilds`) — relevant after a fresh `pnpm install`.
+
+Requires a `DATABASE_URL` env var (see `.env.example`) pointing at the local SQLite file used by the Drizzle-backed DB code — copy `.env.example` to `.env` before running anything that touches `$lib/server/db`.
 
 ## Architecture
 
@@ -45,7 +51,12 @@ On finishing local uploads, `Questionnaire.svelte` uploads files individually wi
 
 ### Local submission-tracking DB
 
-`src/routes/+server.ts` and `src/routes/submit/+server.ts` are SvelteKit server endpoints backed by a local SQLite file (`better-sqlite3`, `edal-submissions.db` at the repo root, gitignored). `submit/+server.ts`'s `submissions` table (created lazily via `CREATE TABLE IF NOT EXISTS` on first POST) tracks submission metadata (gitlab token, ROCrate link, user/arc IDs). The root `+server.ts` GET endpoint proxies usage statistics from an external "scorpion" analytics API, reading an API token out of a `scorpion` table in the same DB. Note: these DB connections are opened at module load with no request-scoped teardown.
+`src/routes/+server.ts` and `src/routes/submit/+server.ts` are SvelteKit server endpoints backed by a local SQLite file, fully on Drizzle ORM (the earlier raw-`better-sqlite3` code path has been removed):
+
+- **`src/lib/server/db/index.ts`** creates the Drizzle client (`drizzle-orm/better-sqlite3`) against `env.DATABASE_URL` (from `$env/dynamic/private`), and **`src/lib/server/db/schema.ts`** defines the `submissions` and `scorpion` tables.
+- **`src/routes/+server.ts`** GET queries the `scorpion` table via Drizzle for an API token, then proxies usage statistics from an external "scorpion" analytics API.
+- **`src/routes/submit/+server.ts`** GET/POST read and write the `submissions` table (gitlab token, ROCrate link, user/arc IDs) via Drizzle.
+- After changing `schema.ts`, run `pnpm db:generate` to keep `drizzle/*.sql` migrations in sync — `pnpm db:push` (handy for quick local iteration) updates the dev DB directly but does *not* produce a migration file, so schema changes pushed that way can silently drift from what `pnpm db:migrate` would produce on a fresh DB.
 
 ### Faceted search
 

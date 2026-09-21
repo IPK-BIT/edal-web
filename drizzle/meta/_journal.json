@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1789970321116,
+      "tag": "0000_faulty_hellfire_club",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789977824314,
+      "tag": "0001_material_iceman",
+      "breakpoints": true
+    }
+  ]
+}
