@@ -31,28 +31,59 @@
 			value.validationMsg = responseText;
 		}
 	}
+
+	function invalidate() {
+		value.validated = false;
+		value.validationMsg = '';
+		responseText = '';
+	}
 </script>
 
 <div>
 	<fieldset class="fieldset">
 		<legend class="fieldset-legend"><span class="label-text">Endpoint</span></legend>
-		<input type="text" class="input-bordered input w-full" bind:value={value.endpoint} />
+		<input
+			type="text"
+			class="input-bordered input w-full"
+			bind:value={value.endpoint}
+			oninput={invalidate}
+		/>
 	</fieldset>
 	<fieldset class="fieldset">
 		<legend class="fieldset-legend"><span class="label-text">Region</span></legend>
-		<input type="text" class="input-bordered input w-full" bind:value={value.region} />
+		<input
+			type="text"
+			class="input-bordered input w-full"
+			bind:value={value.region}
+			oninput={invalidate}
+		/>
 	</fieldset>
 	<fieldset class="fieldset">
 		<legend class="fieldset-legend"><span class="label-text">Bucket</span></legend>
-		<input type="text" class="input-bordered input w-full" bind:value={value.bucket} />
+		<input
+			type="text"
+			class="input-bordered input w-full"
+			bind:value={value.bucket}
+			oninput={invalidate}
+		/>
 	</fieldset>
 	<fieldset class="fieldset">
 		<legend class="fieldset-legend"><span class="label-text">Access Key ID</span></legend>
-		<input type="text" class="input-bordered input w-full" bind:value={value.accessKey} />
+		<input
+			type="text"
+			class="input-bordered input w-full"
+			bind:value={value.accessKey}
+			oninput={invalidate}
+		/>
 	</fieldset>
 	<fieldset class="fieldset">
 		<legend class="fieldset-legend"><span class="label-text">Secret Access Key</span></legend>
-		<input type="password" class="input-bordered input w-full" bind:value={value.secretKey} />
+		<input
+			type="password"
+			class="input-bordered input w-full"
+			bind:value={value.secretKey}
+			oninput={invalidate}
+		/>
 	</fieldset>
 	<button class="btn mt-4 w-full btn-outline btn-secondary" onclick={testConnection}>
 		Test Connection
