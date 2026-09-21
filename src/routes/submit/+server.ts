@@ -73,7 +73,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		});
 	}
 
-	const { access_token_hash: _access_token_hash, ...submissionWithoutHash } = submission;
+	const { access_token_hash, ...submissionWithoutHash } = submission;
 
 	return new Response(JSON.stringify(submissionWithoutHash), {
 		status: 200,
