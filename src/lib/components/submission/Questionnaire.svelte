@@ -210,6 +210,9 @@
 			).reverse();
 			let activeConnections = 0,
 				threadsQuantity = 10;
+			const retryCounts: Record<number, number> = {};
+			const MAX_UPLOAD_RETRIES = 3;
+			let uploadAborted = false;
 
 			isSubmitting = true;
 			submitPhase = 'uploading';
@@ -220,6 +223,9 @@
 			sendNextFile();
 
 			function sendNextFile() {
+				if (uploadAborted) {
+					return;
+				}
 				if (activeConnections >= threadsQuantity) {
 					return;
 				}
@@ -236,7 +242,10 @@
 								title: $datasetObj.metadata.title
 							})
 						})
-							.then(() => {
+							.then((response) => {
+								if (!response.ok) {
+									throw new Error(`Publish failed with status ${response.status}`);
+								}
 								lastSubmissionMode = 'local';
 								sendSuccessNotification();
 								//   index = 0;
@@ -247,6 +256,7 @@
 							})
 							.catch((err) => {
 								console.error('Error publishing dataset metadata:', err);
+								alert('Failed to finalize the submission. Please try again.');
 							})
 							.finally(() => {
 								isSubmitting = false;
@@ -256,7 +266,8 @@
 					return;
 				}
 				fileId = fileQueue.pop()!;
-				const file = $datasetObj.files![fileId];
+				const currentFileId = fileId;
+				const file = $datasetObj.files![currentFileId];
 				let formData = new FormData();
 				formData.set('file', file, file.name);
 
@@ -285,7 +296,10 @@
 						Authorization: `Bearer ${access_token}`
 					}
 				})
-					.then(() => {
+					.then((response) => {
+						if (!response.ok) {
+							throw new Error(`Upload failed with status ${response.status}`);
+						}
 						activeConnections--;
 						uploadDone++;
 						sendNextFile();
@@ -293,8 +307,19 @@
 					.catch((err) => {
 						console.error('Error uploading file:', err);
 						activeConnections--;
-						fileQueue.push(fileId);
-						sendNextFile();
+						const retries = (retryCounts[currentFileId] ?? 0) + 1;
+						retryCounts[currentFileId] = retries;
+						if (retries <= MAX_UPLOAD_RETRIES) {
+							fileQueue.push(currentFileId);
+							sendNextFile();
+						} else {
+							uploadAborted = true;
+							isSubmitting = false;
+							submitDialog?.close();
+							alert(
+								`Uploading "${file.name}" failed after ${MAX_UPLOAD_RETRIES} attempts. Submission aborted.`
+							);
+						}
 					});
 			}
 		} else if ($datasetObj.file_transfer_mode == 's3') {
@@ -339,7 +364,10 @@
 					// Do NOT set Content-Type for FormData, browser will handle it
 				}
 			})
-				.then(() => {
+				.then((response) => {
+					if (!response.ok) {
+						throw new Error(`S3 submit failed with status ${response.status}`);
+					}
 					fileId = 0;
 					$datasetObj = Schemas.getObjectFromSchema('dataset') as Dataset;
 					executeHook(0);
@@ -347,6 +375,7 @@
 				})
 				.catch((err) => {
 					console.error('Error submitting S3 info:', err);
+					alert('Failed to submit dataset via S3. Please try again.');
 				})
 				.finally(() => {
 					isSubmitting = false;
