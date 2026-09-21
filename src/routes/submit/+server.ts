@@ -2,6 +2,8 @@ import { db } from '$lib/server/db';
 import { submissions } from '$lib/server/db/schema';
 import { env } from '$env/dynamic/private';
 import { eq } from 'drizzle-orm';
+import { fetchRoCrateData, type RoCrateMetadata } from '$lib/server/rocrate';
+import type { RoCrateFileNode } from '$lib/js/crateUtils';
 import type { RequestHandler } from './$types';
 
 async function sha256Hex(value: string) {
@@ -73,9 +75,22 @@ export const GET: RequestHandler = async ({ url }) => {
 		});
 	}
 
-	const { access_token_hash, ...submissionWithoutHash } = submission;
+	let metadata: RoCrateMetadata | null = null;
+	let fileTree: RoCrateFileNode[] = [];
+	if (submission.rocrate_link && submission.gitlab_token) {
+		try {
+			const data = await fetchRoCrateData(submission.rocrate_link, submission.gitlab_token);
+			metadata = data.metadata;
+			fileTree = data.fileTree;
+		} catch (err) {
+			console.error('Failed to fetch RO-Crate metadata:', err);
+		}
+	}
 
-	return new Response(JSON.stringify(submissionWithoutHash), {
+	// gitlab_token never leaves the server: the client only needs the parsed metadata.
+	const { access_token_hash, gitlab_token, ...submissionWithoutSecrets } = submission;
+
+	return new Response(JSON.stringify({ ...submissionWithoutSecrets, metadata, fileTree }), {
 		status: 200,
 		headers: { 'Content-Type': 'application/json' }
 	});

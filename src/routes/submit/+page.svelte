@@ -2,7 +2,7 @@
 	import Schemas from '$lib/js';
 	import Console from '$lib/components/submission/Console.svelte';
 	import Questionnaire from '$lib/components/submission/Questionnaire.svelte';
-	import { datasetObj, type Dataset } from '$lib/stores/dataset';
+	import { datasetObj, linkedSubmission, type Dataset } from '$lib/stores/dataset';
 	import generalConfig from '$lib/config/general.json';
 	import { onMount } from 'svelte';
 	import ProgressBar from '$lib/components/submission/ProgressBar.svelte';
@@ -11,6 +11,7 @@
 
 	onMount(async () => {
 		$datasetObj = Schemas.getObjectFromSchema('dataset') as Dataset;
+		linkedSubmission.set(null);
 		const params = new URLSearchParams(window.location.search);
 		submissionId = params.get('submission_id') || '';
 		const accessToken = params.get('access_token') || '';
@@ -21,15 +22,20 @@
 					`/submit?submission_id=${encodeURIComponent(submissionId)}&access_token=${encodeURIComponent(accessToken)}`
 				);
 				if (res.ok) {
-					let metadata = {
-						title: 'Facultative CAM in Talinum',
-						description: 'This is a descriptive description describing my dataset',
-						authors: [],
-						language: '',
-						subjects: ['RNASeq', 'Transcriptomics', 'Drought Stress', 'Talinum triangulare'],
-						license: 'MIT'
-					};
-					$datasetObj.metadata = metadata;
+					const submission = await res.json();
+					if (submission.metadata) {
+						$datasetObj.metadata = { ...$datasetObj.metadata, ...submission.metadata };
+					}
+					// Only pick known, non-secret fields onto the client store, so a
+					// future column added to `submissions` isn't exposed by default.
+					linkedSubmission.set({
+						id: submission.id,
+						rocrate_link: submission.rocrate_link ?? null,
+						user_id: submission.user_id ?? null,
+						arc_id: submission.arc_id ?? null,
+						submitted_at: submission.submitted_at ?? null,
+						fileTree: submission.fileTree ?? []
+					});
 				} else {
 					console.error('Failed to load submission:', res.statusText);
 				}

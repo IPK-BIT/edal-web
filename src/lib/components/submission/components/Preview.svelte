@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { datasetObj } from '$lib/stores/dataset';
+	import { datasetObj, linkedSubmission } from '$lib/stores/dataset';
+	import { countFiles } from '$lib/js/crateUtils';
 	import orcidLogo from '$lib/assets/orcid.logo.icon.svg';
 </script>
 
@@ -39,6 +40,11 @@
 			{:else if $datasetObj.file_transfer_mode === 's3'}
 				<span class="badge badge-accent">S3 Transfer</span>
 				<span class="">{$datasetObj.s3access.validationMsg}</span>
+			{:else if $datasetObj.file_transfer_mode === 'rocrate'}
+				<span class="badge badge-info">ARC RO-Crate Submission</span>
+				{#if $linkedSubmission}
+					<span>number of files: {countFiles($linkedSubmission.fileTree)}</span>
+				{/if}
 			{/if}
 		</div>
 	</div>

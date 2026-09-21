@@ -12,6 +12,8 @@
 	import Preview from './components/Preview.svelte';
 	import { datasetObj, currentStep, type Author, type Dataset } from '$lib/stores/dataset';
 	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
+	import { SvelteSet } from 'svelte/reactivity';
 	import Schemas from '$lib/js';
 
 	// let $currentStep = $state(0);
@@ -41,14 +43,20 @@
 		return segment.replace(/[\\/]|\.\.|[\u0000-\u001f]/g, '_');
 	}
 
+	// Hooks initialize a step's mapped sub-object once per wizard session; they
+	// must not rerun on every entry, or re-navigating (e.g. next -> back -> next)
+	// would wipe out data already entered or imported (e.g. from an RO-Crate prefill).
+	const hooksExecuted = new SvelteSet<number>();
+
 	function executeHook(idx: number) {
+		if (hooksExecuted.has(idx)) return;
+		hooksExecuted.add(idx);
 		if (steps[idx] && steps[idx].hooks && Array.isArray(steps[idx].hooks)) {
 			steps[idx].hooks.forEach((hook) => {
 				if (datasetObj.keyed) {
 					let obj = datasetObj.keyed(hook.state.mapping);
-					let emptyObj = Schemas.getObjectFromSchema(hook.type);
-					if (hook.state.count === 1) {
-						obj.set(emptyObj);
+					if (hook.state.count === 1 && get(obj) == null) {
+						obj.set(Schemas.getObjectFromSchema(hook.type));
 					}
 				}
 			});
@@ -256,6 +264,7 @@
 								//   index = 0;
 								fileId = 0;
 								$datasetObj = Schemas.getObjectFromSchema('dataset') as Dataset;
+								hooksExecuted.clear();
 								executeHook(0);
 								$currentStep = 0;
 							})
@@ -377,6 +386,7 @@
 					sendSuccessNotification();
 					fileId = 0;
 					$datasetObj = Schemas.getObjectFromSchema('dataset') as Dataset;
+					hooksExecuted.clear();
 					executeHook(0);
 					$currentStep = 0;
 				})

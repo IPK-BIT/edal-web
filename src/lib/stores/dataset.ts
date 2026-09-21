@@ -1,6 +1,7 @@
 import { writable, get, derived } from 'svelte/store';
 import { keyed } from '@humanspeak/svelte-keyed';
 import Schemas from '$lib/js';
+import type { RoCrateFileNode } from '$lib/js/crateUtils';
 
 export type Author = {
 	firstName?: string;
@@ -10,6 +11,15 @@ export type Author = {
 	address?: string;
 	orcid?: string;
 	role?: string;
+};
+
+export type LinkedSubmission = {
+	id: string;
+	rocrate_link: string | null;
+	user_id: number | null;
+	arc_id: number | null;
+	submitted_at: string | null;
+	fileTree: RoCrateFileNode[];
 };
 
 export type Dataset = {
@@ -143,3 +153,9 @@ export const datasetObj = storesDataset.DatasetObj;
 export const datasetStr = storesDataset.DatasetStr;
 
 export const currentStep = writable(0);
+
+// Set when the wizard is opened with a submission_id/access_token pair (an
+// ARC RO-Crate submission created via the /submit webhook). The gitlab_token
+// used to fetch it never reaches the client; the server strips it before
+// this object is ever sent.
+export const linkedSubmission = writable<LinkedSubmission | null>(null);
