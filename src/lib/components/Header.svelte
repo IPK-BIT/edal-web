@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { replaceState } from '$app/navigation';
 	import banner from '$lib/assets/header_bg2.png';
 	import logo from '$lib/assets/edal_logo.png';
 	import { onMount } from 'svelte';
@@ -30,7 +31,16 @@
 			const urlParams = new URLSearchParams(window.location.search);
 			const code = urlParams.get('code');
 			if (code) {
-				await retrieveToken(code);
+				const returnedState = urlParams.get('state');
+				const expectedState = sessionStorage.getItem('oauth_state');
+				sessionStorage.removeItem('oauth_state');
+				if (returnedState && returnedState === expectedState) {
+					await retrieveToken(code);
+				} else {
+					console.error('OIDC state mismatch, aborting token exchange.');
+					// eslint-disable-next-line svelte/no-navigation-without-resolve
+					replaceState(window.location.pathname, {});
+				}
 			}
 
 			accesToken = localStorage.getItem('access_token');

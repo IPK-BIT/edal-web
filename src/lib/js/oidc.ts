@@ -107,13 +107,17 @@ export async function performLogin(codeChallenge: string) {
 
 	const auth_url = oidcConfig.authorization_endpoint;
 
+	const state = generateCodeVerifier();
+	sessionStorage.setItem('oauth_state', state);
+
 	const params = {
 		response_type: 'code',
 		client_id: clientId,
 		redirect_uri: window.location.origin,
 		scope: 'openid profile email',
 		code_challenge: codeChallenge,
-		code_challenge_method: 'S256'
+		code_challenge_method: 'S256',
+		state
 	};
 
 	const urlParams = new URLSearchParams(params).toString();
