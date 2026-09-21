@@ -42,9 +42,9 @@
 			codeChallenge = await generateCodeChallenge(codeVerifier);
 			localStorage.setItem('code_verifier', codeVerifier);
 
-			const checkAndSchedule = () => {
+			const checkAndSchedule = async () => {
 				if (!checkTokenValidity(localStorage.getItem('access_token') || '')) {
-					if (!renewToken(localStorage.getItem('refresh_token') || '')) {
+					if (!(await renewToken(localStorage.getItem('refresh_token') || ''))) {
 						// console.log('Failed to renew token, user needs to login again.');
 						logout();
 					} else {
