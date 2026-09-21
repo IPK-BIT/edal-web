@@ -56,8 +56,12 @@ function createDatasetStoresSynced() {
 	};
 
 	const setDatasetStr = (DatasetStr: string) => {
-		storeDatasetObj.set(JSON.parse(DatasetStr));
-		storeDatasetStr.set(DatasetStr);
+		try {
+			storeDatasetObj.set(JSON.parse(DatasetStr));
+			storeDatasetStr.set(DatasetStr);
+		} catch {
+			return;
+		}
 	};
 
 	type DatasetObjStore = {

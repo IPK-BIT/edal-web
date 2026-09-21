@@ -36,6 +36,11 @@
 		}
 	});
 
+	function sanitizePathSegment(segment: string): string {
+		// eslint-disable-next-line no-control-regex
+		return segment.replace(/[\\/]|\.\.|[\u0000-\u001f]/g, '_');
+	}
+
 	function executeHook(idx: number) {
 		if (steps[idx] && steps[idx].hooks && Array.isArray(steps[idx].hooks)) {
 			steps[idx].hooks.forEach((hook) => {
@@ -283,7 +288,7 @@
 				formData.set('metaData', JSON.stringify(metadata));
 
 				let pathArr = file.webkitRelativePath.split('/');
-				pathArr[0] = $datasetObj.metadata.title;
+				pathArr[0] = sanitizePathSegment($datasetObj.metadata.title);
 				let path = pathArr.slice(0, -1).join('/');
 				formData.set('path', path);
 				activeConnections++;
