@@ -56,7 +56,7 @@ On finishing local uploads, `Questionnaire.svelte` uploads files individually wi
 - **`src/lib/server/db/index.ts`** creates the Drizzle client (`drizzle-orm/better-sqlite3`) against `env.DATABASE_URL` (from `$env/dynamic/private`), and **`src/lib/server/db/schema.ts`** defines the `submissions` and `scorpion` tables.
 - **`src/routes/+server.ts`** GET queries the `scorpion` table via Drizzle for an API token, then proxies usage statistics from an external "scorpion" analytics API.
 - **`src/routes/submit/+server.ts`** GET/POST read and write the `submissions` table (gitlab token, ROCrate link, user/arc IDs) via Drizzle.
-- After changing `schema.ts`, run `pnpm db:generate` to keep `drizzle/*.sql` migrations in sync — `pnpm db:push` (handy for quick local iteration) updates the dev DB directly but does *not* produce a migration file, so schema changes pushed that way can silently drift from what `pnpm db:migrate` would produce on a fresh DB.
+- After changing `schema.ts`, run `pnpm db:generate` to keep `drizzle/*.sql` migrations in sync — `pnpm db:push` (handy for quick local iteration) updates the dev DB directly but does _not_ produce a migration file, so schema changes pushed that way can silently drift from what `pnpm db:migrate` would produce on a fresh DB.
 
 ### Faceted search
 
