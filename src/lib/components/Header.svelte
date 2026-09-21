@@ -16,9 +16,6 @@
 
 	let accesToken: string | null = null;
 
-	let codeVerifier = '';
-	let codeChallenge = '';
-
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let oidcConfig: unknown = {};
 
@@ -45,12 +42,12 @@
 
 			accesToken = localStorage.getItem('access_token');
 			if (accesToken) {
-				username = JSON.parse(atob(accesToken.split('.')[1])).preferred_username;
+				try {
+					username = JSON.parse(atob(accesToken.split('.')[1])).preferred_username;
+				} catch {
+					accesToken = null;
+				}
 			}
-
-			codeVerifier = generateCodeVerifier();
-			codeChallenge = await generateCodeChallenge(codeVerifier);
-			localStorage.setItem('code_verifier', codeVerifier);
 
 			const checkAndSchedule = async () => {
 				if (!checkTokenValidity(localStorage.getItem('access_token') || '')) {
@@ -76,7 +73,10 @@
 	});
 	let username: string = 'Guest';
 
-	function login() {
+	async function login() {
+		const codeVerifier = generateCodeVerifier();
+		localStorage.setItem('code_verifier', codeVerifier);
+		const codeChallenge = await generateCodeChallenge(codeVerifier);
 		performLogin(codeChallenge);
 	}
 

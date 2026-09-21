@@ -68,11 +68,22 @@ export async function retrieveToken(code: string) {
 		body: new URLSearchParams(data).toString()
 	});
 
-	const tokenResponse = await response.json();
-	localStorage.setItem('access_token', tokenResponse.access_token);
-	localStorage.setItem('refresh_token', tokenResponse.refresh_token);
 	// eslint-disable-next-line svelte/no-navigation-without-resolve
 	replaceState(window.location.pathname, {});
+
+	if (!response.ok) {
+		console.error('Token exchange failed:', response.status);
+		return;
+	}
+
+	const tokenResponse = await response.json();
+	if (!tokenResponse.access_token || !tokenResponse.refresh_token) {
+		console.error('Token exchange response missing tokens');
+		return;
+	}
+
+	localStorage.setItem('access_token', tokenResponse.access_token);
+	localStorage.setItem('refresh_token', tokenResponse.refresh_token);
 }
 
 export async function renewToken(refreshToken: string) {
@@ -95,7 +106,15 @@ export async function renewToken(refreshToken: string) {
 		body: new URLSearchParams(data).toString()
 	});
 
+	if (!response.ok) {
+		return false;
+	}
+
 	const tokenResponse = await response.json();
+	if (!tokenResponse.access_token || !tokenResponse.refresh_token) {
+		return false;
+	}
+
 	localStorage.setItem('access_token', tokenResponse.access_token);
 	localStorage.setItem('refresh_token', tokenResponse.refresh_token);
 	return true;
