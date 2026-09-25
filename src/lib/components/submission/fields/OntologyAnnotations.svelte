@@ -14,10 +14,12 @@
 		},
 		parameter = 'collection=DataPLANT',
 		className = undefined as string | undefined,
-		value = $bindable<string[]>([])
+		value = $bindable<string[]>([]),
+		readOnly = false
 	} = $props();
 
 	onMount(() => {
+		if (readOnly) return;
 		// widget injected at runtime by external script
 		type Ts4Widgets = { createAutocomplete?: (...args: unknown[]) => void };
 		const win = window as Window & { ts4nfdiWidgets?: Ts4Widgets };
@@ -61,14 +63,18 @@
 				{#each value as subject, i (subject)}
 					<li class="flex justify-between p-1 hover:bg-base-300">
 						<p>{subject}</p>
-						<button
-							class="btn btn-circle btn-xs btn-error"
-							onclick={() => (value = value.filter((s, index) => index !== i))}>X</button
-						>
+						{#if !readOnly}
+							<button
+								class="btn btn-circle btn-xs btn-error"
+								onclick={() => (value = value.filter((s, index) => index !== i))}>X</button
+							>
+						{/if}
 					</li>
 				{/each}
 			</ul>
 		{/if}
-		<div id="autocomplete_widget_container_24"></div>
+		{#if !readOnly}
+			<div id="autocomplete_widget_container_24"></div>
+		{/if}
 	</fieldset>
 </section>

@@ -2,7 +2,7 @@
 	import Schemas from '$lib/js';
 	import Person from './Person.svelte';
 
-	let { value: people = $bindable(), componentConfig = {} } = $props();
+	let { value: people = $bindable(), componentConfig = {}, readOnly = false } = $props();
 
 	// $inspect removed to satisfy linter
 
@@ -62,28 +62,31 @@
 					bind:value={people[index]}
 					onremovePerson={() => removePerson(index)}
 					allowedRoles={componentConfig.allowedRoles}
+					{readOnly}
 				/>
 			{/each}
 		</div>
-		<div>
-			<button class="btn btn-sm btn-accent" onclick={addPerson}> Add Author </button>
-			<!-- change popover-1 and --anchor-1 names. Use unique names for each dropdown -->
-			<button
-				class="btn btn-outline btn-sm btn-secondary"
-				popovertarget="popover-1"
-				style="anchor-name:--anchor-1"
-			>
-				Import/Export
-			</button>
-			<ul
-				class="menu dropdown w-52 rounded-box bg-base-100 shadow-sm"
-				popover
-				id="popover-1"
-				style="position-anchor:--anchor-1"
-			>
-				<li><button class="" onclick={importPeople}> Import Authors </button></li>
-				<li><button class="" onclick={exportPeople}> Export Authors </button></li>
-			</ul>
-		</div>
+		{#if !readOnly}
+			<div>
+				<button class="btn btn-sm btn-accent" onclick={addPerson}> Add Author </button>
+				<!-- change popover-1 and --anchor-1 names. Use unique names for each dropdown -->
+				<button
+					class="btn btn-outline btn-sm btn-secondary"
+					popovertarget="popover-1"
+					style="anchor-name:--anchor-1"
+				>
+					Import/Export
+				</button>
+				<ul
+					class="menu dropdown w-52 rounded-box bg-base-100 shadow-sm"
+					popover
+					id="popover-1"
+					style="position-anchor:--anchor-1"
+				>
+					<li><button class="" onclick={importPeople}> Import Authors </button></li>
+					<li><button class="" onclick={exportPeople}> Export Authors </button></li>
+				</ul>
+			</div>
+		{/if}
 	</fieldset>
 </section>

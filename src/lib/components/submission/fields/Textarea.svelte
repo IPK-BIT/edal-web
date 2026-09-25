@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { label = '', attr, value = $bindable(), showLabel = true } = $props();
+	let { label = '', attr, value = $bindable(), showLabel = true, readOnly = false } = $props();
 
 	if (!label) {
 		label = attr;
@@ -15,6 +15,7 @@
 			class="resize-vertical input h-38 w-full p-2 text-justify"
 			bind:value
 			wrap="hard"
+			disabled={readOnly}
 			style="white-space: pre-wrap; overflow-wrap: break-word;"
 		></textarea>
 	</fieldset>

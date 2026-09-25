@@ -4,7 +4,9 @@
 	import orcidLogo from '$lib/assets/orcid.logo.icon.svg';
 
 	onMount(() => {
-		if (!person.orcid) {
+		// In read-only (ARC) mode we always show the expanded view instead - see the
+		// effectiveEditMode derivation below - so this must not flip editMode itself.
+		if (!readOnly && !person.orcid) {
 			editMode = true;
 		}
 	});
@@ -67,7 +69,12 @@
 		}
 	}
 
-	let { value: person = $bindable(), allowedRoles = [], onremovePerson = () => {} } = $props();
+	let {
+		value: person = $bindable(),
+		allowedRoles = [],
+		onremovePerson = () => {},
+		readOnly = false
+	} = $props();
 
 	let orcid = $state({});
 	let rorid = $state({});
@@ -115,13 +122,16 @@
 	});
 
 	let editMode = $state(false);
+	// Read-only (ARC) mode always shows the expanded field view, regardless of
+	// editMode, per docs/arc-migration-plan.md section 3, item 8.
+	let effectiveEditMode = $derived(readOnly || editMode);
 </script>
 
 <div
 	class="overflow-x-auto rounded-md border bg-base-100 p-4 text-sm"
 	style="border-color: color-mix(in oklab, var(--color-base-content) 20%, #0000);"
 >
-	{#if editMode}
+	{#if effectiveEditMode}
 		<div class="gap-2">
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">AuthorRole<span class="text-red-500">*</span></legend>
@@ -136,6 +146,7 @@
 								class="radio radio-sm"
 								name="authorRole-{person.id}"
 								value={role.value}
+								disabled={readOnly}
 								bind:group={person.role}
 							/>
 							<span class="ml-2" title={role.tooltip} aria-label={role.tooltip}>
@@ -156,16 +167,20 @@
 						style="border-color: color-mix(in oklab, var(--color-base-content) 20%, #0000);"
 					>
 						<span>{person.orcid}</span>
-						<button
-							class="btn btn-xs btn-error"
-							onclick={() => {
-								orcid = {};
-								person.orcid = '';
-								person.firstName = '';
-								person.lastName = '';
-							}}>Remove</button
-						>
+						{#if !readOnly}
+							<button
+								class="btn btn-xs btn-error"
+								onclick={() => {
+									orcid = {};
+									person.orcid = '';
+									person.firstName = '';
+									person.lastName = '';
+								}}>Remove</button
+							>
+						{/if}
 					</div>
+				{:else if readOnly}
+					<p class="text-sm text-neutral">No ORCID provided</p>
 				{:else}
 					<Svelecte
 						bind:value={orcid}
@@ -181,17 +196,29 @@
 			<div class="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend"><span class="label-text">First Name</span></legend>
-					<input type="text" class="input-bordered input w-full" bind:value={person.firstName} />
+					<input
+						type="text"
+						class="input-bordered input w-full"
+						bind:value={person.firstName}
+						disabled={readOnly}
+					/>
 				</fieldset>
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend"><span class="label-text">Last Name</span></legend>
-					<input type="text" class="input-bordered input w-full" bind:value={person.lastName} />
+					<input
+						type="text"
+						class="input-bordered input w-full"
+						bind:value={person.lastName}
+						disabled={readOnly}
+					/>
 				</fieldset>
-				<div class="flex justify-end">
-					<button class="btn w-full btn-outline btn-primary md:w-auto" onclick={syncSignedInUser}>
-						Sync signed in user info
-					</button>
-				</div>
+				{#if !readOnly}
+					<div class="flex justify-end">
+						<button class="btn w-full btn-outline btn-primary md:w-auto" onclick={syncSignedInUser}>
+							Sync signed in user info
+						</button>
+					</div>
+				{/if}
 			</div>
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">ROR ID</legend>
@@ -201,15 +228,19 @@
 						style="border-color: color-mix(in oklab, var(--color-base-content) 20%, #0000);"
 					>
 						<span>{person.rorid}</span>
-						<button
-							class="btn btn-xs btn-error"
-							onclick={() => {
-								rorid = {};
-								person.rorid = '';
-								person.affiliation = '';
-							}}>Remove</button
-						>
+						{#if !readOnly}
+							<button
+								class="btn btn-xs btn-error"
+								onclick={() => {
+									rorid = {};
+									person.rorid = '';
+									person.affiliation = '';
+								}}>Remove</button
+							>
+						{/if}
 					</div>
+				{:else if readOnly}
+					<p class="text-sm text-neutral">No ROR ID provided</p>
 				{:else}
 					<Svelecte
 						bind:value={rorid}
@@ -224,40 +255,47 @@
 			</fieldset>
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Affiliation</legend>
-				<input type="text" class="input w-full" bind:value={person.affiliation} />
+				<input
+					type="text"
+					class="input w-full"
+					bind:value={person.affiliation}
+					disabled={readOnly}
+				/>
 			</fieldset>
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Address</legend>
-				<input type="text" class="input w-full" bind:value={person.address} />
+				<input type="text" class="input w-full" bind:value={person.address} disabled={readOnly} />
 			</fieldset>
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">City</legend>
-				<input type="text" class="input w-full" bind:value={person.city} />
+				<input type="text" class="input w-full" bind:value={person.city} disabled={readOnly} />
 			</fieldset>
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Zip Code</legend>
-				<input type="text" class="input w-full" bind:value={person.zipCode} />
+				<input type="text" class="input w-full" bind:value={person.zipCode} disabled={readOnly} />
 			</fieldset>
 			<fieldset class="mb-2 fieldset">
 				<legend class="fieldset-legend">Country</legend>
-				<input type="text" class="input w-full" bind:value={person.country} />
+				<input type="text" class="input w-full" bind:value={person.country} disabled={readOnly} />
 			</fieldset>
 
-			<button
-				class="btn btn-sm btn-info"
-				onclick={() => {
-					if (!person.orcid) {
-						alert('Every author needs an ORCID');
-						return;
-					}
-					editMode = false;
-				}}
-			>
-				Save
-			</button>
-			<button class="btn btn-sm btn-error" onclick={() => onremovePerson()}>
-				Remove {person.givenName || 'Person'}
-			</button>
+			{#if !readOnly}
+				<button
+					class="btn btn-sm btn-info"
+					onclick={() => {
+						if (!person.orcid) {
+							alert('Every author needs an ORCID');
+							return;
+						}
+						editMode = false;
+					}}
+				>
+					Save
+				</button>
+				<button class="btn btn-sm btn-error" onclick={() => onremovePerson()}>
+					Remove {person.givenName || 'Person'}
+				</button>
+			{/if}
 		</div>
 	{:else}
 		<div class="flex items-center">
