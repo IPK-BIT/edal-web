@@ -15,6 +15,7 @@
 	import { get } from 'svelte/store';
 	import { SvelteSet } from 'svelte/reactivity';
 	import Schemas from '$lib/js';
+	import { backendUrl } from '$lib/config/backends';
 
 	// let $currentStep = $state(0);
 
@@ -81,7 +82,7 @@
 			for (const field of step.fields) {
 				if (field.mapping.jsonPath === 'metadata.title') {
 					const response = await fetch(
-						`https://dmz-web-169.ipk-gatersleben.de/submission/info/exists?title=${encodeURIComponent(`${getValueByPath($datasetObj, field.mapping.jsonPath)}`)}`,
+						`${backendUrl('submission')}/info/exists?title=${encodeURIComponent(`${getValueByPath($datasetObj, field.mapping.jsonPath)}`)}`,
 						{
 							method: 'GET',
 							headers: {
@@ -245,7 +246,7 @@
 				if (!fileQueue.length) {
 					if (!activeConnections) {
 						submitPhase = 'finalizing';
-						fetch('https://dmz-web-169.ipk-gatersleben.de/submission/publication/publish', {
+						fetch(`${backendUrl('submission')}/publication/publish`, {
 							method: 'POST',
 							headers: {
 								Authorization: `Bearer ${access_token}`,
@@ -301,8 +302,7 @@
 				let path = pathArr.slice(0, -1).join('/');
 				formData.set('path', path);
 				activeConnections++;
-				let base_url = 'https://dmz-web-169.ipk-gatersleben.de/submission';
-				// let base_url = 'http://localhost:8000';
+				let base_url = backendUrl('submission');
 				fetch(`${base_url}/upload/dataset`, {
 					method: 'POST',
 					body: formData,
@@ -347,8 +347,7 @@
 				alert('Please fill out the following S3 field(s):\n' + missing.join(', '));
 				return;
 			}
-			let base_url = 'https://dmz-web-169.ipk-gatersleben.de/submission';
-			// let base_url = 'http://localhost:8000';
+			let base_url = backendUrl('submission');
 			let formData = new FormData();
 			// for (const key in $datasetObj) {
 			// 	let value = $datasetObj[key];

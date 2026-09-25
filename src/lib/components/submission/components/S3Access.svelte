@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Schemas from '$lib/js';
+	import { backendUrl } from '$lib/config/backends';
 
 	let responseText = $state('');
 
@@ -10,17 +11,14 @@
 	}
 
 	async function testConnection() {
-		const response = await fetch(
-			'https://dmz-web-169.ipk-gatersleben.de/submission/upload/s3check',
-			{
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${localStorage.getItem('access_token')}`
-				},
-				body: JSON.stringify(value)
-			}
-		);
+		const response = await fetch(`${backendUrl('submission')}/upload/s3check`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${localStorage.getItem('access_token')}`
+			},
+			body: JSON.stringify(value)
+		});
 		if (response.status === 200) {
 			responseText = await response.text();
 			value.validated = true;

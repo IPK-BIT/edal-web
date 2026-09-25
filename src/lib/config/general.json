@@ -3,5 +3,10 @@
 		"client-id": "edal-web",
 		"openid-configuration": "https://datahub.ipk-gatersleben.de/auth/realms/gitlab/.well-known/openid-configuration"
 	},
-	"env": "dev"
+	"env": "dev",
+	"arcSource": "legacy",
+	"backends": {
+		"submission": "https://dmz-web-169.ipk-gatersleben.de/submission",
+		"plantHubToEdal": "https://dmz-web-169.ipk-gatersleben.de/plantHubToEdal"
+	}
 }
