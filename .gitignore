@@ -25,3 +25,5 @@ vite.config.ts.timestamp-*
 *.db
 
 report.md
+
+docs/
