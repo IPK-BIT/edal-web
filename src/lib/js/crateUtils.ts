@@ -121,11 +121,14 @@ function sortChildren(nodes: RoCrateFileNode[]): RoCrateFileNode[] {
 	});
 }
 
-// Builds a nested tree purely from each entity's relative path, rather than trusting
-// `hasPart` to be nested per-directory - this handles both crates that nest `hasPart`
-// per subdirectory and crates that list deep paths flatly off the root.
-export function buildFileTree(graph: RoCrateEntity[], root: RoCrateEntity): RoCrateFileNode[] {
-	const { filePaths, dirPaths } = collectPaths(root, graph);
+// Shared path-to-tree assembly: turns a flat set of file paths (plus, optionally,
+// directory paths that have no files of their own) into a nested tree. Used both by
+// treeFromPaths (flat filePaths[] from the plantHubToEdal API) and by buildFileTree
+// (which additionally knows about graph-derived empty directories).
+function assembleTree(
+	filePaths: Iterable<string>,
+	dirPaths: Iterable<string> = []
+): RoCrateFileNode[] {
 	const rootChildren: RoCrateFileNode[] = [];
 	const dirsByPath = new Map<string, RoCrateFileNode & { kind: 'directory' }>();
 
@@ -162,6 +165,23 @@ export function buildFileTree(graph: RoCrateEntity[], root: RoCrateEntity): RoCr
 		sortChildren(dir.children);
 	}
 	return sortChildren(rootChildren);
+}
+
+// Builds a nested tree from a flat list of file paths, e.g. the plantHubToEdal API's
+// filePaths[] - no graph, no hasPart, just relative path strings.
+export function treeFromPaths(paths: string[]): RoCrateFileNode[] {
+	const normalized = paths
+		.map((path) => path.replace(/^\/+|\/+$/g, ''))
+		.filter((path) => path.length > 0);
+	return assembleTree(normalized);
+}
+
+// Builds a nested tree purely from each entity's relative path, rather than trusting
+// `hasPart` to be nested per-directory - this handles both crates that nest `hasPart`
+// per subdirectory and crates that list deep paths flatly off the root.
+export function buildFileTree(graph: RoCrateEntity[], root: RoCrateEntity): RoCrateFileNode[] {
+	const { filePaths, dirPaths } = collectPaths(root, graph);
+	return assembleTree(filePaths, dirPaths);
 }
 
 export function countFiles(nodes: RoCrateFileNode[]): number {
