@@ -50,15 +50,17 @@
 			}
 
 			const checkAndSchedule = async () => {
-				if (!checkTokenValidity(localStorage.getItem('access_token') || '')) {
+				const storedAccessToken = localStorage.getItem('access_token');
+				// Only a previously logged-in user (one with a stored access token) can have
+				// an expired/invalid session worth renewing or logging out of. Skip entirely
+				// for guests, otherwise this reschedules a logout()-triggered reload forever.
+				if (storedAccessToken && !checkTokenValidity(storedAccessToken)) {
 					if (!(await renewToken(localStorage.getItem('refresh_token') || ''))) {
 						// console.log('Failed to renew token, user needs to login again.');
 						logout();
 					} else {
 						// console.log('Access token renewed successfully.');
 					}
-				} else {
-					// console.log('Access token is still valid.');
 				}
 				// schedule next check
 				timer = setTimeout(checkAndSchedule, 5000);
