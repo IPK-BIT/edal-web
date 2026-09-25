@@ -1,0 +1,295 @@
+openapi: 3.0.3
+info:
+  title: PlantHub to eDAL Endpoint
+  description: >
+    REST endpoint that acts as the destination of the CQC hook from PLANTdataHUB.
+    It receives an RO-Crate hook payload, fetches and stores the associated
+    submission state, and exposes endpoints for a submission tool to retrieve
+    metadata and ARC files for a given submission.
+  version: '1.0.0'
+servers:
+  - url: /plantHubToEdal
+    description: Base path of the endpoint (adjust host/context-root as deployed)
+
+tags:
+  - name: PlantHub
+    description: Operations related to receiving and processing PLANTdataHUB submissions
+
+paths:
+  /cqc_receiver:
+    post:
+      tags: [PlantHub]
+      summary: Receive a CQC hook from PLANTdataHUB
+      description: >
+        Accepts the CQC webhook payload, pulls the referenced RO-Crate from GitLab,
+        stores a new submission entry in memory, and returns a "follow me" URL
+        the user should be redirected to for license agreement / review.
+      operationId: receiveCqcHook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CqcHookPayload'
+      responses:
+        '200':
+          description: Submission accepted; redirect URL returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FollowMeResponse'
+        '500':
+          description: Internal server error (e.g. RO-Crate fetch failed).
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: 'Failed to fetch RO-Crate'
+
+  /{submissionID}/get_metadata:
+    get:
+      tags: [PlantHub]
+      summary: Get generated metadata for a submission
+      description: >
+        Returns metadata derived from the stored RO-Crate for the given submission,
+        for display/editing in the submission tool UI. Requires dlaRead=true,
+        indicating the user has opened/acknowledged the data license agreement.
+      operationId: getMetadata
+      parameters:
+        - name: submissionID
+          in: path
+          required: true
+          description: UUID identifying the submission.
+          schema:
+            type: string
+            format: uuid
+        - name: dlaRead
+          in: query
+          required: false
+          description: Must be true to retrieve metadata (indicates the DLA was read/opened).
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Metadata for the submission.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetadataResponse'
+        '400':
+          description: Invalid parameter, or dlaRead not true.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: 'Invalid parameter or dla not read'
+        '404':
+          description: Submission not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: 'Submission not found'
+        '500':
+          description: Internal server error.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /{submissionID}/get_arcfiles:
+    get:
+      tags: [PlantHub]
+      summary: Get ARC files for a submission
+      description: >
+        Returns the list of ARC files (either inline bytes or LFS-resolvable URLs)
+        associated with the submission's RO-Crate. Requires finishWebUI=true,
+        indicating the user has clicked "finish" in the submission tool UI.
+      operationId: getArcFiles
+      parameters:
+        - name: submissionID
+          in: path
+          required: true
+          description: UUID identifying the submission.
+          schema:
+            type: string
+            format: uuid
+        - name: finishWebUI
+          in: query
+          required: false
+          description: Must be true to retrieve ARC files (indicates the user clicked "finish").
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of ARC files for the submission.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArcFile'
+        '400':
+          description: Invalid parameter, or finishWebUI not true.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: 'Invalid parameter or not finished'
+        '404':
+          description: Submission not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: 'Submission not found'
+        '500':
+          description: Internal server error.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  schemas:
+    CqcHookPayload:
+      type: object
+      description: Payload sent by PLANTdataHUB's CQC hook.
+      required:
+        - project_id
+        - gitlab_token
+        - ro_crate_url
+      properties:
+        project_id:
+          type: string
+          description: Identifier of the PLANTdataHUB project.
+        gitlab_token:
+          type: string
+          description: Private GitLab token used to fetch the RO-Crate (sent as PRIVATE-TOKEN header).
+        ro_crate_url:
+          type: string
+          format: uri
+          description: URL from which the RO-Crate JSON-LD document can be fetched.
+      additionalProperties: true
+
+    FollowMeResponse:
+      type: object
+      properties:
+        follow_me:
+          type: string
+          format: uri
+          description: >
+            URL the user should be redirected to, where they review/accept the
+            license agreement before metadata is released.
+      example:
+        follow_me: 'http://dmz-web-140.ipk-gatersleben.de:10042/submit?submission_id=b016cd8d-ae93-40cf-9c2b-19bddf32597b&access_token=41c86f94-a46e-4460-b107-950f61c1771fac70bd2c-cb91-485c-9f0b-e35bd16d012d'
+
+    Author:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        affiliation:
+          type: string
+        orcid:
+          type: string
+          description: ORCID identifier/URL of the author.
+        city:
+          type: string
+        address:
+          type: string
+        role:
+          type: string
+          enum: [Creator, Contributor]
+          description: First author found is "Creator"; all subsequent authors are "Contributor".
+
+    Metadata:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        authors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Author'
+        language:
+          type: string
+        subjects:
+          type: array
+          items:
+            type: string
+        license:
+          type: string
+          example: 'CC-BY-4.0'
+        embargoDate:
+          type: string
+          description: ISO date string, empty if no embargo.
+
+    MetadataResponse:
+      type: object
+      properties:
+        dlaRead:
+          type: boolean
+          example: true
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+        filePaths:
+          type: array
+          items:
+            type: string
+          description: Relative paths of all File entities found in the RO-Crate.
+        file_transfer_mode:
+          type: string
+          example: 'rocrate'
+      example:
+        dlaRead: true
+        metadata:
+          title: 'SHAPE P2 Phenotyping Trials'
+          description: 'This is a description of the SHAPE Phase 2 phenotyping trials dataset'
+          authors:
+            - firstName: 'Manuel'
+              lastName: 'Feser'
+              affiliation: 'Leibniz-Institut fur Pflanzengenetik und Kulturpflanzenforschung (IPK), BIT'
+              orcid: 'http://orcid.org/0000-0001-6546-1818'
+              city: ''
+              address: ''
+              role: 'Creator'
+          language: ''
+          subjects: []
+          license: 'CC-BY-4.0'
+          embargoDate: ''
+        filePaths: []
+        file_transfer_mode: 'rocrate'
+
+    ArcFile:
+      type: object
+      description: >
+        A file in the ARC format. Either inline byte content (BYTES) or a
+        resolvable LFS URL (LFS), depending on "type".
+      properties:
+        path:
+          type: string
+          description: Relative path of the file within the RO-Crate/ARC.
+        type:
+          type: string
+          enum: [BYTES, LFS]
+          description: BYTES = content is included inline; LFS = resolve via url.
+        content:
+          type: string
+          format: byte
+          nullable: true
+          description: Base64-encoded file content. Present only when type is BYTES.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: Presigned/resolver URL for LFS-tracked files. Present only when type is LFS.
+      example:
+        path: 'assays/assay1/data.csv'
+        type: 'LFS'
+        content: null
+        url: 'https://lfs-resolver.nfdi4plants.org/presigned-url/?oid=abc123...'
