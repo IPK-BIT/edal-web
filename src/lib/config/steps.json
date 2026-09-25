@@ -54,6 +54,7 @@
 				"type": "date",
 				"label": "Embargo Date",
 				"required": false,
+				"arcReadOnlyExempt": true,
 				"mapping": {
 					"jsonPath": "metadata.embargoDate"
 				}

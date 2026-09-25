@@ -5,9 +5,10 @@
 	let { component: Component, field, jsonPath = undefined } = $props();
 
 	let value = $derived(jsonPath && datasetObj.keyed ? datasetObj.keyed(jsonPath) : undefined);
-	// embargoDate is the one field ARC mode leaves editable (assumption A2) - the
-	// crate can't reliably encode an embargo decision.
-	let readOnly = $derived(jsonPath === 'metadata.embargoDate' ? false : $isArcReadOnly);
+	// A field can opt out of ARC read-only mode via steps.json (arcReadOnlyExempt) -
+	// embargoDate is the one such field today (assumption A2), since the crate can't
+	// reliably encode an embargo decision.
+	let readOnly = $derived(field.arcReadOnlyExempt ? false : $isArcReadOnly);
 </script>
 
 <Component

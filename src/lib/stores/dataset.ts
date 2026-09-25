@@ -12,7 +12,11 @@ export type Author = {
 	// The affiliation string exactly as it arrived (e.g. from an ARC RO-Crate),
 	// before any best-effort city/affiliation split. Kept so a publish payload
 	// can reproduce the original rather than re-joining a possibly-wrong split -
-	// see docs/arc-migration-plan.md section 1.3.
+	// see docs/arc-migration-plan.md section 1.3. Not read yet: nothing populates
+	// this field until the ARC finish flow (OQ-1) is wired up, but when it is, the
+	// address-fold transform in Questionnaire.svelte's finish() must prefer this
+	// over re-deriving `address` from `affiliation`/`city`, or a bad split becomes
+	// unfixable published data.
 	rawAffiliation?: string;
 	orcid?: string;
 	role?: string;

@@ -20,6 +20,10 @@ export type ArcSubmissionState =
 
 function createArcSubmission() {
 	const state = writable<ArcSubmissionState>({ status: 'idle' });
+	// Guards against a stale load() overwriting a newer one's result (e.g. a fast
+	// double-click on a manual Retry button): only the most recently started call
+	// is allowed to apply its outcome to the store.
+	let loadSeq = 0;
 
 	function toErrorState(err: unknown, retryable: boolean): ArcSubmissionState {
 		if (err instanceof ArcApiError) {
@@ -39,11 +43,14 @@ function createArcSubmission() {
 	// Fetches and adapts metadata for `submissionId`. Safe to call again after an
 	// error (e.g. from a manual Retry button) - get_metadata is idempotent.
 	async function load(submissionId: string): Promise<void> {
+		const seq = ++loadSeq;
 		state.set({ status: 'loading' });
 		try {
 			const response = await getMetadata(submissionId);
+			if (seq !== loadSeq) return;
 			state.set({ status: 'ready', data: toDatasetPatch(response) });
 		} catch (err) {
+			if (seq !== loadSeq) return;
 			state.set(toErrorState(err, true));
 		}
 	}

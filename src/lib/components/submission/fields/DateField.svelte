@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { label = '', attr, value = $bindable(), showLabel = true } = $props();
+	let { label = '', attr, value = $bindable(), showLabel = true, readOnly = false } = $props();
 
 	if (!label) {
 		label = attr;
@@ -11,6 +11,6 @@
 		{#if showLabel}
 			<legend class="fieldset-legend">{label}</legend>
 		{/if}
-		<input type="date" class="input w-full" bind:value />
+		<input type="date" class="input w-full" bind:value disabled={readOnly} />
 	</fieldset>
 </section>

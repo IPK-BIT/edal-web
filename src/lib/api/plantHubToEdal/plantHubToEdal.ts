@@ -44,6 +44,7 @@ async function doFetch(url: string, timeoutMs: number, headers: HeadersInit): Pr
 function statusToKind(status: number): ArcErrorKind {
 	if (status === 404) return 'not_found';
 	if (status === 400) return 'bad_request';
+	if (status === 401 || status === 403) return 'unauthorized';
 	if (status >= 500) return 'server_error';
 	return 'unknown';
 }
