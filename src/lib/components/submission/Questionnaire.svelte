@@ -5,6 +5,7 @@
 	import steps from '$lib/config/steps.json';
 	import Textarea from './fields/Textarea.svelte';
 	import License from './fields/License.svelte';
+	import DateField from './fields/DateField.svelte';
 	import OntologyAnnotations from './fields/OntologyAnnotations.svelte';
 	import People from './components/People.svelte';
 	import Files from './components/Files.svelte';
@@ -23,6 +24,7 @@
 		string: String,
 		textarea: Textarea,
 		license: License,
+		date: DateField,
 		'onto-autocomplete': OntologyAnnotations
 	};
 

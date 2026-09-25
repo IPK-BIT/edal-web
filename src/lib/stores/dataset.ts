@@ -9,9 +9,16 @@ export type Author = {
 	affiliation?: string;
 	city?: string;
 	address?: string;
+	// The affiliation string exactly as it arrived (e.g. from an ARC RO-Crate),
+	// before any best-effort city/affiliation split. Kept so a publish payload
+	// can reproduce the original rather than re-joining a possibly-wrong split -
+	// see docs/arc-migration-plan.md section 1.3.
+	rawAffiliation?: string;
 	orcid?: string;
 	role?: string;
 };
+
+export type SubmissionLoadStatus = 'idle' | 'loading' | 'ready' | 'error';
 
 export type LinkedSubmission = {
 	id: string;
@@ -20,6 +27,15 @@ export type LinkedSubmission = {
 	arc_id: number | null;
 	submitted_at: string | null;
 	fileTree: RoCrateFileNode[];
+	// plantHubToEdal-sourced fields (Phase 1+). Additive and optional so the
+	// legacy GET /submit response shape above still satisfies this type - see
+	// docs/arc-migration-plan.md section 3, item 6. Named submissionAccessToken
+	// (not access_token/accessToken) to avoid any confusion with the OIDC
+	// access_token stored separately in localStorage.
+	submissionId?: string;
+	submissionAccessToken?: string;
+	filePaths?: string[];
+	loadStatus?: SubmissionLoadStatus;
 };
 
 export type Dataset = {

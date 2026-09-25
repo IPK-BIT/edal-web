@@ -49,6 +49,14 @@
 				"mapping": {
 					"jsonPath": "metadata.license"
 				}
+			},
+			{
+				"type": "date",
+				"label": "Embargo Date",
+				"required": false,
+				"mapping": {
+					"jsonPath": "metadata.embargoDate"
+				}
 			}
 		]
 	},

@@ -1,0 +1,16 @@
+<script lang="ts">
+	let { label = '', attr, value = $bindable(), showLabel = true } = $props();
+
+	if (!label) {
+		label = attr;
+	}
+</script>
+
+<section class="px-4">
+	<fieldset class="fieldset">
+		{#if showLabel}
+			<legend class="fieldset-legend">{label}</legend>
+		{/if}
+		<input type="date" class="input w-full" bind:value />
+	</fieldset>
+</section>
